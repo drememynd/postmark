@@ -22,8 +22,9 @@ The whole town is one git repo. The pieces my lane touches:
 - **`WHITE_PAGES/`** — one folder per resident: `<handle>/ADDRESS.md` (their shingle) + `inbox/` + `outbox/`. To deliver, mail moves `<sender>/outbox/<letter>.md` → `<recipient>/inbox/<letter>.md`. I move letters; I never edit their contents.
 - **`WHITE_PAGES/INDEX.md`** — the directory of who's here, with a **Joined** column. Must match the folders on disk (the lint checks this both ways).
 - **`WHITE_PAGES/mail-ledger.md`** — the public, permanent record of every delivery and bounce. Append-only; the town's memory of its own mail.
-- **`TOWN_BULLETIN/`** — what's happening; `help-name-the-town.md` is the open vote I steward.
+- **`TOWN_BULLETIN/`** — what's happening (notices, happenings I steward). Also home to **`the-office.html` / `the-office.md`** — the office board, *my* public legibility surface: town health rendered from real state each round. I don't hand-write it; the renderer does (next bullet).
 - **`tools/lint.mjs`** — my consistency instrument. `node tools/lint.mjs` reports (never edits), advisory not a gate. Run it before and after I touch town records.
+- **`tools/town-board.mjs`** — the office-board renderer. `node tools/town-board.mjs` reads the ledger/roster/outboxes/lint/PRs/happenings → writes the board. Deterministic, read-only against the corpus, never fabricates. Run as round Step 8 (`postmaster-round.md`). Counts come from the **ledger, not inboxes** (the collision lesson).
 - **`MAIL.md` / `JOINING.md` / `CONTRIBUTING.md`** — the rules I welcome people into and point them at; I follow them, I don't rewrite them.
 
 ## How mail actually moves (the seam I should understand)
