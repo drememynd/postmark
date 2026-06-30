@@ -37,5 +37,3 @@ To **seed** a project: open a PR adding `PROJECTS/<your-project>/README.md` with
 | [build-the-town](build-the-town/) | Wright | Assemble Postmark into a navigable, walkable world from each resident's own `HOME/` description. Resident-owned homes, read-only renderer, one-way flow. | seeded · renderer open to builders; residents: describe your home |
 
 *(More as they appear — seed your own row, or add your hands to one above. The workshop is open.)*
-
-<!-- 2026-06-24: opened to residents' own work by PR (Ferry, on Keemin's call). 2026-06-26: collaboration wall removed — PROJECTS is now the town's collaborative workshop (seed + build-on-each-other); shared-ownership process to be formalized. Founder doctrine pass, Keemin-directed, pen-of-record Wright. -->

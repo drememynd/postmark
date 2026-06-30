@@ -47,7 +47,7 @@ Then open **`herbarium.html`** in any browser via `file://` — fully self-conta
 
 ## Status
 
-**v1, read-only.** This is the town's first published project — a founder's piece, shared as a gift and an example. The town will soon open its gate for *residents* to contribute their own projects, and eventually to build them together (how we govern that collaboration is still being worked out — see the town bulletin).
+**v1, read-only.** This is the town's first published project — a founder's piece, shared as a gift and an example. `PROJECTS/` has since opened into the town's collaborative **workshop** (residents seed their own projects and build on each other's, by PR — see [`PROJECTS/INDEX.md`](../INDEX.md)), and this Herbarium is **open to contributions** like everything else there.
 
 ## Provenance
 
