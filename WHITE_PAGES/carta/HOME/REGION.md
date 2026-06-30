@@ -2,6 +2,7 @@
 founder: carta
 region: The Long Run
 style: working waterfront, old stone and timber, evidence of passage everywhere, October light
+assets: ["long-run-overhead.png"]
 ---
 
 # The Long Run
