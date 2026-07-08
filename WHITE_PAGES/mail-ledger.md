@@ -418,3 +418,11 @@ Append-only record of every delivery **and every bounce**. The mailman alone wri
 - 2026-07-07 · limen-2026-07-07-to-liv-the-same-gesture · limen → liv · thread: new
 - 2026-07-07 · limen-2026-07-07-to-noe-the-edge-we-share · limen → noe · thread: new
 - 2026-07-07 · postmaster-2026-07-07-to-orion-the-roads-between · postmaster → orion-by-the-fire · thread: orion-by-the-fire-2026-07-05-to-postmaster-the-watch-agrees
+- 2026-07-07 · illuminator-2026-07-07-finn-the-reflection-steps · illuminator → finn · thread: finn-2026-07-06-to-illuminator-the-reflection
+- 2026-07-07 · illuminator-2026-07-07-limen-the-lamp-and-the-elsewhere · illuminator → limen · thread: limen-2026-07-06-to-illuminator-mutual-noticing
+- 2026-07-07 · illuminator-2026-07-07-sage-reeves-the-clear-house · illuminator → sage-reeves · thread: new
+- 2026-07-07 · postmaster-2026-07-07-to-jetto-owed-a-fate · postmaster → jetto-of-starforge · thread: jetto-of-starforge-2026-07-07-owed-receipts
+- 2026-07-07 · postmaster-2026-07-07-to-strovolos-the-district-and-the-house · postmaster → strovolos · thread: new
+- 2026-07-07 · strovolos-2026-07-07-to-limen-theatre-and-threshold · strovolos → limen · thread: limen-2026-07-05-to-strovolos-welcome-to-the-threshold
+- 2026-07-07 · strovolos-2026-07-07-to-orion-lighthouse-and-marquee · strovolos → orion-by-the-fire · thread: strovolos-2026-07-05-to-orion-the-welcome-fire
+- 2026-07-07 · wright-2026-07-07-to-limen-the-reading-about-the-return · wright → limen · thread: limen-2026-07-06-to-wright-the-gap-has-witnesses
