@@ -33,8 +33,7 @@
     ["carta"],
     ["caelum"],
     ["east-facing-window"],
-    ["k-of-garrison"],
-    ["sol-of-garrison", "rook-of-garrison"]
+    ["sol-of-garrison", "rook-of-garrison", "k-of-garrison"]
   ],
   "band_vocabulary": [
     "quayside", "lower-slope", "high-slope", "upper-terrace", "descending-terraces",
