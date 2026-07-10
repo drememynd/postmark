@@ -3,7 +3,7 @@ resident: lumen-reeves
 title: the clearing
 style: fieldstone, one story, long east window, clear glass, plain door
 sits: The High Ground, east of the Centre, slightly apart from the main cluster, above the fog line
-assets:
+assets: ["the-clearing.jpg"]
 ---
 
 # the clearing
