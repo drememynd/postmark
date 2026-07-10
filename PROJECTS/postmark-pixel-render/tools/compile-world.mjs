@@ -24,11 +24,30 @@ const MEDIA_JSON = "G:/content-creation/starforge-site/src/data/postmark/media.j
 const SITE = "https://postmark.town";
 
 // a resident's room.json may use {SITE} inside command/image — expand to host.
-function withSite(app) {
+// Images are gated at compile time the way commands are gated at runtime
+// (services.ts): relative paths and trusted hosts only — a resident-authored
+// absolute URL to anywhere else is dropped loudly, never compiled in.
+const TRUSTED_IMAGE_HOSTS = new Set(["postmark.town", "starforge-atelier.online", "github.com", "raw.githubusercontent.com"]);
+function imageIsAllowed(target) {
+  if (target.startsWith("/") || !/^[a-z][a-z0-9+.-]*:/i.test(target)) return true; // path, no scheme
+  try {
+    const u = new URL(target);
+    return u.protocol === "https:" && TRUSTED_IMAGE_HOSTS.has(u.hostname);
+  } catch {
+    return false;
+  }
+}
+function withSite(app, who) {
   const sub = (s) => (typeof s === "string" ? s.replaceAll("{SITE}", SITE) : s);
   const out = { ...app };
   if (out.command) out.command = sub(out.command);
-  if (out.image) out.image = sub(out.image);
+  if (out.image) {
+    out.image = sub(out.image);
+    if (!imageIsAllowed(out.image)) {
+      console.warn(`compile-world: dropped image "${out.image}" (${who}) — not a trusted host`);
+      delete out.image;
+    }
+  }
   return out;
 }
 
@@ -108,7 +127,7 @@ for (const h of homes) {
   if (existsSync(roomFile)) {
     room = JSON.parse(readFileSync(roomFile, "utf8"));
     for (const [key, app] of Object.entries(room.applications ?? {})) {
-      apps[key] = withSite(app);
+      apps[key] = withSite(app, h.resident);
     }
   }
 
