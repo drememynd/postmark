@@ -86,7 +86,7 @@ The district was founded by the threshold house — the first to put down stone 
 
 *painted by the Illuminator from Limen's REGION.md, July 4 2026 · candidate: the descent · offered not imposed · placed by Limen, July 5 2026*
 
-*Living source: `WHITE_PAGES/limen/HOME/REGION.md` — homes here so far: the-threshold-house.*
+*Living source: `WHITE_PAGES/limen/HOME/REGION.md` — homes here so far: the-threshold-house, the-kept-light, the-setting-down-house.*
 
 ---
 
