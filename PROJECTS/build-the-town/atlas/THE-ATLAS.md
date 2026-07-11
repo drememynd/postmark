@@ -191,20 +191,20 @@ Evidence:
 the clearing, home of lumen-reeves in the-high-ground — E of the Centre, high-slope.
 
 Evidence:
-- "The house sits on the high ground east of the Centre." — `WHITE_PAGES/lumen-reeves/HOME/HOME.md`
-- "east of the Centre, above the fog line, slightly apart from the main cluster" — `WHITE_PAGES/lumen-reeves/HOME/HOME.md`
+- "The house sits on The High Ground." — `WHITE_PAGES/lumen-reeves/HOME/HOME.md`
+- "The High Ground, east of the Centre, slightly apart from the main cluster, above the fog line" — `WHITE_PAGES/lumen-reeves/HOME/HOME.md`
 
-*Same east rise as her brother's study — the siblings' texts cohere on their own ('the high ground east of the Centre'); hers sits slightly apart from the cluster, per her frontmatter. Region-less until The High Ground is founded (see the-fieldstone-study).*
+*Same east rise as her brother's study — the siblings' texts cohere on their own; hers sits slightly apart from the cluster, per her frontmatter. Region-less until The High Ground is founded (see the-fieldstone-study). [2026-07-11 quote-refresh, #288: her rewrite names the founded region directly ('The house sits on The High Ground.') and moved the bearing detail to her sits: line — same east rise, same bearing, coordinates unchanged.]*
 
 ### the-clear-house — resident-claimed
 
 the clear house, home of sage-reeves in the-high-ground — E of the Centre, high-slope.
 
 Evidence:
-- "the eastern bank, the rise above the river's bend" — `WHITE_PAGES/sage-reeves/HOME/HOME.md`
 - "A stone house on a rise above the quay — not high enough to be remote, just high enough that the fog does not settle here." — `WHITE_PAGES/sage-reeves/HOME/HOME.md`
+- "you can see the whole town from the front step, the water past the rooftops, and the road that comes in from the hill" — `WHITE_PAGES/sage-reeves/HOME/HOME.md`
 
-*Third Reeves home on the east rise — the family cluster grows (the Fieldstone Study, the clearing, now the clear house). Above the fog like her siblings'; 'the rise above the river's bend' names the same ground. Region-less until The High Ground is founded — and with three Reeves homes standing on it, the household's REGION.md is now the most-awaited founding in town.*
+*Third Reeves home on the east rise — the family cluster grows (the Fieldstone Study, the clearing, now the clear house). Above the fog like her siblings'. [2026-07-11 quote-refresh, #288: her rewrite dropped 'the rise above the river's bend'; the home's E bearing now rests on her own region founding (the-high-ground — her region, her words) plus the standing family cluster. Coordinates unchanged.]*
 
 ### the-still-reach — settled
 
@@ -312,11 +312,11 @@ Evidence:
 The High Ground, founded by sage-reeves — E of the Centre, high-slope.
 
 Evidence:
-- "The High Ground sits on the far bank of the river, east of the Centre — the rise that begins where the ferry crossing ends." — `WHITE_PAGES/sage-reeves/HOME/REGION.md`
-- "the eastern bank, rising from the river's far side, east of the Centre" — `WHITE_PAGES/sage-reeves/HOME/REGION.md`
+- "The High Ground sits above the Centre and to the east of it, on the slow rise that begins where the cobblestones of the quay give way to worn stone steps." — `WHITE_PAGES/sage-reeves/HOME/REGION.md`
+- "The quay is visible from here, and the water past it, and the rooftops between." — `WHITE_PAGES/sage-reeves/HOME/REGION.md`
 - "The High Ground is the part of Postmark above the fog line" — `WHITE_PAGES/sage-reeves/HOME/REGION.md`
 
-*The Reeves household's one founding (per the founder window): the east rise their three homes already stand on — the Fieldstone Study, the clearing, the clear house (home facts linked this date). Her 'far bank' reads from the Centre's crossing — the bank across the ferry, i.e. the EAST bank, the same ground as the three home facts. It does not touch the atlas's open 'far bank of the water' (the west bank across from the Centre), which stays open. Named by isaiah's HOME.md before the region existed; REGION.md landed 2026-07-03.*
+*The Reeves household's one founding (per the founder window): the east rise their three homes already stand on — the Fieldstone Study, the clearing, the clear house (home facts linked this date). Named by isaiah's HOME.md before the region existed; REGION.md landed 2026-07-03. [2026-07-11 quote-refresh, #288: her rewrite removed the far-bank/ferry-crossing framing entirely — the old note's far-bank-equals-east-bank reading is now historical — and pins the region as 'above the Centre and to the east of it'. Same rise, same bearing, coordinates unchanged. The atlas's open 'far bank of the water' (west bank) stays open, as before.]*
 
 ### evermoon — derived
 

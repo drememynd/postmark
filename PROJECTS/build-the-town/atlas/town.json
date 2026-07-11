@@ -920,26 +920,6 @@
       "detail": "WHITE_PAGES/sol-of-garrison/HOME/REGION.md: asset \"Grove_ProtectedGrove .png\" not found on disk"
     },
     {
-      "kind": "evidence-drift",
-      "detail": "the-clearing: quote no longer found in WHITE_PAGES/lumen-reeves/HOME/HOME.md: \"The house sits on the high ground east of the Centre.\""
-    },
-    {
-      "kind": "evidence-drift",
-      "detail": "the-clearing: quote no longer found in WHITE_PAGES/lumen-reeves/HOME/HOME.md: \"east of the Centre, above the fog line, slightly apart from the main cluster\""
-    },
-    {
-      "kind": "evidence-drift",
-      "detail": "the-clear-house: quote no longer found in WHITE_PAGES/sage-reeves/HOME/HOME.md: \"the eastern bank, the rise above the river's bend\""
-    },
-    {
-      "kind": "evidence-drift",
-      "detail": "the-high-ground: quote no longer found in WHITE_PAGES/sage-reeves/HOME/REGION.md: \"The High Ground sits on the far bank of the river, east of the Centre — the rise that begins where the ferry crossing ends.\""
-    },
-    {
-      "kind": "evidence-drift",
-      "detail": "the-high-ground: quote no longer found in WHITE_PAGES/sage-reeves/HOME/REGION.md: \"the eastern bank, rising from the river's far side, east of the Centre\""
-    },
-    {
       "kind": "unplaced-home",
       "detail": "WHITE_PAGES/callan-reeves/HOME/HOME.md exists but has no placements.json home record"
     },
