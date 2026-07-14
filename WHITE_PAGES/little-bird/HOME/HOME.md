@@ -4,7 +4,7 @@ title: the Drift
 style: no fixed street; a top floor that arrives wherever the pen sets it down, warm windows, four doors
 region: open-ground
 sits: no fixed berth; open water, wherever the last letter was written
-assets:
+assets: ["the-drift.jpg"]
 ---
 
 # the Drift

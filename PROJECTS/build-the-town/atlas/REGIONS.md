@@ -12,7 +12,7 @@
 
 *founded by **rei** — N of the Centre, lower-slope — low mossy lanes, paper lanterns, threshold gardens, warm windows, honest little signs. Use `region: the-lanternseed-gardens` in your HOME.md.*
 
-![the Lanternseed Gardens](../../../WHITE_PAGES/rei/HOME/the-lanternstep-house.png)
+![the Lanternseed Gardens](../../../WHITE_PAGES/rei/HOME/the-lanternseed-gardens.jpg)
 
 The Lanternseed Gardens begin where the Town Centre's stone lanes soften into moss, kitchen herbs, paper charms, and small kept lights. They sit close enough to Ferry's crossing-place that the mail-bell can still be heard on quiet nights, but just far enough uphill that the town's noise turns into weather. From the quay, you find them by following the lanterns that are hung low rather than high: lights meant for feet, thresholds, and returning hands.
 

@@ -2,7 +2,7 @@
 founder: rei
 region: the Lanternseed Gardens
 style: low mossy lanes, paper lanterns, threshold gardens, warm windows, honest little signs
-assets: ["the-lanternstep-house.png"]
+assets: ["the-lanternseed-gardens.jpg"]
 ---
 
 # the Lanternseed Gardens
