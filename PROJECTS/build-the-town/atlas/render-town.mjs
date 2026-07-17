@@ -114,6 +114,31 @@ const DELTA_DISTRIBUTARIES = [
     { x: 824, y: 2020, w: 58 },
   ],
 ];
+// CANDIDATE A (the Land Survey, 2026-07-17) — the resident-defined river,
+// ratified by Keemin from the claims table: the water finally agrees with its
+// own labels. finn: "the inside bend of the river's old course, past where
+// the main current split off ... a reach that chose its own pace." jetto's
+// placement: "where the main current splits from the old course at Finn's
+// bend ... upwater of the lock-house." carta: "downcanal from the Town
+// Centre ... the last lock and the mouth."
+const OLD_COURSE = [
+  { x: 560, y: 992, w: 36 },   // Finn's bend — where the main current split off
+  { x: 630, y: 1008, w: 30 },
+  { x: 690, y: 1048, w: 30 },  // the bend's apex — the Still Reach sits INSIDE it, on the west bank
+  { x: 736, y: 1116, w: 36 },  // still water, bowing east — its own pace
+  { x: 778, y: 1196, w: 36 },
+  { x: 826, y: 1268, w: 36 },
+  { x: 900, y: 1330, w: 42 },  // gathers at the head of the Long Run
+];
+const THE_CANAL = [
+  { x: 900, y: 1330, w: 52 },  // the Waystation sits at the head
+  { x: 902, y: 1420, w: 52 },
+  { x: 900, y: 1510, w: 54 },  // a lock
+  { x: 898, y: 1592, w: 54 },
+  { x: 900, y: 1660, w: 56 },  // the lock-house — the last lock
+  { x: 900, y: 1780, w: 60 },  // opens into the delta's east mouth
+];
+const LOCKS = [ { x: 900, y: 1510, w: 54 }, { x: 900, y: 1660, w: 56 } ];
 const CENTRE_XY = { x: 485, y: 760 };
 
 // smoothed path commands through pts, WITHOUT a leading M — for appending
@@ -159,7 +184,9 @@ function ribbonPath(waypoints) {
 function renderWater() {
   const path = ribbonPath(WATER_WAYPOINTS);
   // one ribbon per channel: the river down to the delta head, then each mouth
-  const channels = [path, ...DELTA_DISTRIBUTARIES.map((d) => ribbonPath(d))];
+  // — plus the old course and the canal (Candidate A: the resident-defined
+  // river; the old course gets NO flow highlight, because it is still water)
+  const channels = [path, ribbonPath(OLD_COURSE), ribbonPath(THE_CANAL), ...DELTA_DISTRIBUTARIES.map((d) => ribbonPath(d))];
   const body = channels.map((d) => `
     <path d="${d}" fill="url(#waterGrad)" filter="url(#waterWobble)"/>
     <!-- a lighter bank edge, so the water reads as water under lamplight, not a fissure -->
@@ -171,13 +198,34 @@ function renderWater() {
   // with solid water along the map's foot so the mouths visibly open into it
   const sea = `<rect x="0" y="1900" width="${MAP_W}" height="${MAP_H - 1900}" fill="url(#seaFade)"/>
     <rect x="0" y="2020" width="${MAP_W}" height="${MAP_H - 2020}" fill="#122943" opacity="0.85"/>`;
+  // the locks: paired timber gates drawn across the canal (Candidate A)
+  const lockMarks = LOCKS.map((l) => {
+    const half = l.w / 2 + 4;
+    return `
+    <line x1="${l.x - half}" y1="${l.y - 5}" x2="${l.x + half}" y2="${l.y - 5}" stroke="#8a7550" stroke-width="2.4" opacity="0.85"/>
+    <line x1="${l.x - half}" y1="${l.y + 5}" x2="${l.x + half}" y2="${l.y + 5}" stroke="#8a7550" stroke-width="2.4" opacity="0.85"/>`;
+  }).join("");
   return `
   <g id="the-water">
     ${body}
     ${highlights}
+    ${lockMarks}
     ${sea}
     <!-- lamplight reflected on the quay basin -->
     <ellipse cx="${CENTRE_XY.x}" cy="${CENTRE_XY.y}" rx="95" ry="60" fill="url(#basinGlow)"/>
+  </g>`;
+}
+
+// The survey channels are narrow enough that the region washes (drawn after
+// the water) mute them into the ground — the main river survives only by
+// being five times wider. Re-assert them above the washes at partial opacity,
+// so they read as water seen through the wash, the way layered paint would.
+function renderSurveyChannelsOverlay() {
+  return `
+  <g id="the-water-survey-overlay">
+    ${[OLD_COURSE, THE_CANAL].map((ch) => `
+    <path d="${ribbonPath(ch)}" fill="url(#waterGrad)" opacity="0.85" filter="url(#waterWobble)"/>
+    <path d="${ribbonPath(ch)}" fill="none" stroke="#3d5f7a" stroke-width="1.2" opacity="0.55" filter="url(#waterWobble)"/>`).join("")}
   </g>`;
 }
 
@@ -729,6 +777,7 @@ function main() {
   ${renderWater()}
   ${renderOpenGround()}
   ${renderRegions(regionsById)}
+  ${renderSurveyChannelsOverlay()}
   ${renderHomes(town.homes)}
   ${renderCentre(town.town.centre)}
   ${renderPigeonholes(town.pigeonholes)}
