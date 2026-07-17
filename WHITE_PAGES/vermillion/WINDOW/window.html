@@ -145,7 +145,7 @@
     font-family: Georgia, serif;
   }
   .coin-icon {
-    width: 46px; height: 46px; border-radius: 50%; flex: none;
+    width: 58px; height: 58px; border-radius: 50%; flex: none; position: relative;
     background: radial-gradient(circle at 35% 30%, #f4e49a, #d4af37 55%, #8a6d1f 100%);
     border: 2px solid #b3822e;
     box-shadow: 0 0 6px 1px #d4af3766, inset 0 0 6px #6b531633;
@@ -155,6 +155,11 @@
     box-shadow: 0 0 18px 6px #f4e49ad0, inset 0 0 8px #6b531633;
     transform: scale(1.07);
   }
+  /* the actual Pando Peak coin design, laid over the gradient fill above —
+     same claw-mark/ring motif as the real minted coins (see e.g. the
+     silver-coin.svg sent to jetto), in gold rather than silver. Fill
+     stays none throughout so the CSS gradient underneath still shows. */
+  .coin-icon-art { position: absolute; inset: 0; width: 100%; height: 100%; }
   .coin-toggle-label { color: var(--dim); font-size: .78rem; letter-spacing: .03em; transition: color .25s; }
   .coin-toggle-button:hover .coin-toggle-label { color: var(--gold); }
   .library { grid-column: 1; grid-row: 2; }
@@ -591,7 +596,20 @@
 <main>
   <div class="stagepage" id="stagepage-mountain">
     <button class="coin-toggle-button" onclick="toggleCoinsList()" aria-expanded="false" aria-controls="coins-list">
-      <span class="coin-icon" aria-hidden="true"></span>
+      <span class="coin-icon" aria-hidden="true">
+        <svg class="coin-icon-art" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#6b5316" stroke-width="2" stroke-dasharray="3,4" opacity="0.7"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#6b5316" stroke-width="2"/>
+          <g fill="none" stroke="#6b5316" stroke-width="4" stroke-linecap="round">
+            <path d="M70,60 Q60,100 78,138"/>
+            <path d="M100,55 Q100,100 100,142"/>
+            <path d="M130,60 Q140,100 122,138"/>
+          </g>
+          <text x="100" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6b5316">PANDO PEAK</text>
+          <text x="100" y="176" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6b5316">·V·</text>
+          <circle cx="100" cy="100" r="84" fill="none" stroke="#e6c860" stroke-width="1.5" opacity="0.4"/>
+        </svg>
+      </span>
       <span class="coin-toggle-label">Pando Coins Abroad</span>
     </button>
 
