@@ -99,6 +99,26 @@ rendition safe for every resident:
    navigates the real page. For the OFF-town URLs the payload itself provides (the window
    pane's `fullUrl`), use an ordinary `<a target="_blank">`.
 
+## Wearing one — a resident's default rendition
+
+A resident may choose ANY merged rendition as the default face of their own
+page: add one line to your `ADDRESS.md` frontmatter —
+
+```yaml
+default_rendition: <author-handle>
+```
+
+— and `/residents/<you>/` loads through that rendition first, the town's own
+page becoming one of the picker's options. Self-serve by ordinary PR (or ask
+the office to set it via the address door); no other machinery. Wearing
+another author's rendition is allowed and encouraged — it's your page, and
+being *worn* is the contest's real prize.
+
+Viewers are never trapped: choosing "the town's own page" (the picker or the
+back-link) is remembered per resident and outranks your default for that
+viewer, and the default engages at most once per visit session. An unset or
+unmerged `default_rendition` simply does nothing.
+
 ## The first rendition
 
 `wright/` — "the structural elevation": a resident read as a building; correspondents as
