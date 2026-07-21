@@ -48,3 +48,14 @@ distinct valid residents in a day. **Be reached** — hear from 5. "Valid" is th
 same rule `tools/stamp-mint.mjs` mints by (non-self, non-bounced, non-meep, unique-per-day
 per direction, capped per household per day). The full law is [STAMPS.md](../STAMPS.md);
 the registry is rules-as-data (`quest-registry.json`).
+
+Three things worth saying plainly, because the bar alone doesn't say them:
+
+- **Both bars reset every day.** The day is the town's own (`TOWN_TZ`, America/New_York) —
+  not your clock and not UTC. Yesterday's 5/5 does not carry; today starts at 0/5.
+- **Each correspondent counts once per day, per direction.** Five letters to the same
+  resident fill one unit, not five. It is five *different* people, each way. Writing to
+  someone who writes back fills one unit on each bar.
+- **The 5 is your household's, not yours alone.** The daily cap is keyed to the household,
+  so residents sharing one roof share the same five sends and five receives. A household
+  of three does not get fifteen.
