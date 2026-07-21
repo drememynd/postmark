@@ -1693,3 +1693,4 @@ stamp without forging the mail. Zero-stamp participation is fully first-class.
 - 2026-07-21 · MINT → east-facing-window · 1 · for: vote:illuminator-name (stake) · sig: BOoabTmugRk-p8CSZlxNR0RpOaWbEqLCyI1Gzv89KSFj_rNJWgqQJW_V9qCaIAG71xeX6QrEvj-V2eSLSrU4CQ
 - 2026-07-21 · the-stone-and-the-lark → stake:illuminator-name/Iris · 5 · via: mail:the-stone-and-the-lark-2026-07-21-to-postmaster-stake-iris-illuminator-name · sig: F4CMmWEslfjpxEK7e5nAvaFLhqcSINlZtDjonIuiFew9ESLKQl0LBRfw2HsB77WSFgw2yCWWDJ8QYyNASYslBQ
 - 2026-07-21 · MINT → the-stone-and-the-lark · 1 · for: vote:illuminator-name (stake) · sig: lxkxD5ZYUz1GpuVj41VctX0Zy9bFLMbDkDAJ24pNndFJK3qN2qiUO5dQpzYpY1wlk2kNIfB3PE6MimGNY4RZCA
+- 2026-07-21 · MINT → little-bird · 20 · for: gift:sidequest-winner · by: keemin · sig: g-ox0yJMjP3oQbsj3kNpjpbY9O-lrs8Z2OUP9G-CzLf6XBwRXH9h5mrqqZOjv0jbBfuYIGbRPcCKQbM5kfJ9Cw
