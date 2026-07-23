@@ -369,6 +369,42 @@ function renderTerrainGround() {
     out += `<line x1="${o.x}" y1="${o.y}" x2="${o.x}" y2="${o.y - o.h}" stroke="#7ea0b8" stroke-width="2" opacity="0.7"/>`;
     for (let k = 0; k < 3; k++) out += `<circle cx="${o.x + (k - 1) * 3}" cy="${o.y - o.h - 4 - k * 5}" r="1.2" fill="#7ea0b8" opacity="${(0.7 - k * 0.18).toFixed(2)}"/>`;
   }
+  // water offshoots — merrick's Blackwater Bend inlet (PR #650, the town's
+  // first resident-household terrain contribution): still water off the main
+  // channel, drawn the Still Reach's way — no flow highlight, nothing moves.
+  for (const w of TERRAIN.water_offshoots || []) {
+    const d = ribbonPath(w.pts, { roundEnd: !!w.round_end });
+    out += `<path d="${d}" fill="url(#waterGrad)" opacity="0.92" filter="url(#waterWobble)"/>
+      <path d="${d}" fill="none" stroke="#3d5f7a" stroke-width="1.1" opacity="0.45" filter="url(#waterWobble)"/>`;
+  }
+  // bridges — private-scale timber, the locks' wood (two rails + planks)
+  for (const b of TERRAIN.bridges || []) {
+    const half = b.length / 2;
+    let planks = "";
+    for (let k = -2; k <= 2; k++) planks += `<line x1="${(k * half / 2.5).toFixed(1)}" y1="-4" x2="${(k * half / 2.5).toFixed(1)}" y2="4" stroke="#6b4f2a" stroke-width="1.6" opacity="0.85"/>`;
+    out += `<g transform="translate(${b.x},${b.y}) rotate(${b.angle})">
+      <line x1="${-half}" y1="-3.5" x2="${half}" y2="-3.5" stroke="#4a3618" stroke-width="2" opacity="0.9"/>
+      <line x1="${-half}" y1="3.5" x2="${half}" y2="3.5" stroke="#4a3618" stroke-width="2" opacity="0.9"/>
+      ${planks}
+    </g>`;
+  }
+  // tree clusters — canopy blobs with a hint of trunk, scaled per tree
+  for (const tc of TERRAIN.tree_clusters || []) {
+    for (const t of tc.trees || []) {
+      const r = 9 * (t.scale || 1);
+      out += `<line x1="${t.x}" y1="${(t.y + r * 0.4).toFixed(1)}" x2="${t.x}" y2="${(t.y + r + 4).toFixed(1)}" stroke="#5a4632" stroke-width="1.6" opacity="0.8"/>
+        <circle cx="${t.x}" cy="${t.y}" r="${r.toFixed(1)}" fill="#41603f" opacity="0.85"/>
+        <circle cx="${(t.x - r * 0.35).toFixed(1)}" cy="${(t.y - r * 0.3).toFixed(1)}" r="${(r * 0.45).toFixed(1)}" fill="#54774d" opacity="0.6"/>`;
+    }
+  }
+  // stepping-stone paths — stones, not a line: a dot per point, a smaller one between
+  for (const p of TERRAIN.paths || []) {
+    const pts = p.pts || [];
+    for (let i = 0; i < pts.length; i++) {
+      out += `<circle cx="${pts[i].x}" cy="${pts[i].y}" r="2" fill="#6b6256" opacity="0.8"/>`;
+      if (i < pts.length - 1) out += `<circle cx="${((pts[i].x + pts[i + 1].x) / 2).toFixed(0)}" cy="${((pts[i].y + pts[i + 1].y) / 2).toFixed(0)}" r="1.4" fill="#6b6256" opacity="0.65"/>`;
+    }
+  }
   return `<g id="terrain-ground">${out}</g>`;
 }
 
@@ -662,11 +698,27 @@ const REGION_LAYOUT = {
   // exactly: its north tip is (54,1358) and its farthest east is (182,1580).
   // Spill west into the sea is intended — see the wash-coverage pass; what is
   // NOT wanted is the region reaching north-east into open fields it never held.
-  "the-reach": { cx: 54, cy: 1580, rx: 128, ry: 222, wash: "#5f7a72", label: { x: 110, y: 1288 }, hit: { x: 15, y: 1310, w: 190, h: 460 } },
+  // SHIFTED SOUTH 2026-07-22 (Keemin, founder's word — the Evermoon move): the
+  // north tip comes down 1358 -> ~1435 (flush under Evermoon's south tip) to
+  // make room for the night above. WIDENED the same evening (Keemin: "give the
+  // Reach back some space"): in exchange for the north it gave up, it takes the
+  // unclaimed wedge between it and its neighbors — east to the Doubled Coast's
+  // lip (~19px seam at closest approach, dregg's Hatched Shell far outside at
+  // 2.0) and south to the Headland's neck (the promontory's shore-end
+  // (158,1800), which the coastline itself marks as "the Reach's shore ends
+  // here" — covered, as the Reach's own coast; tulip's ground begins past it).
+  // Still-Here Light now deep inside (0.31).
+  "the-reach": { cx: 70, cy: 1660, rx: 150, ry: 225, wash: "#5f7a72", label: { x: 110, y: 1400 }, hit: { x: 10, y: 1415, w: 225, h: 490 } },
   "the-high-ground": { cx: 1000, cy: 800, rx: 150, ry: 125, wash: "#9c9178", label: { x: 1000, y: 650 } },
-  // the far eastern edge beyond the country — permanent night pressed against
-  // the town's day (placements.json: derived); moonlit-indigo wash
-  "evermoon": { cx: 1330, cy: 1150, rx: 130, ry: 220, wash: "#3d4a6b", label: { x: 1330, y: 880 } },
+  // MOVED WEST 2026-07-22 (Keemin, founder's word, PROVISIONAL on caelum's
+  // answer — the Illuminator's letter is in flight and 'nowhere is a complete
+  // answer' stands; reverts wholly at his word). Evermoon now holds the west
+  // band just above the Reach — the dark end of the recalibrated day-axis, so
+  // the region that defines the town's night sits where the map is darkest.
+  // The far-east ground it vacated returns to open ground (invitation).
+  // Permanent night pressed against the town's day (placements.json: derived);
+  // moonlit-indigo wash.
+  "evermoon": { cx: 105, cy: 1190, rx: 135, ry: 235, wash: "#3d4a6b", label: { x: 105, y: 935 } },
   // the open country EAST of the Threshold, between the High Ground (N) and
   // Evermoon (E) — an open grass field that catches dawn first, just west of
   // where Evermoon's permanent night begins; windows face east into the
@@ -794,9 +846,9 @@ const REGION_VIGNETTE_XY = {
   "the-long-run": { x: 800, y: 1760 }, // stepped east off the canal with its buildings (survey, 2026-07-17)
   "the-threshold-district": { x: 640, y: 904 },
   "the-doubled-coast": { x: 295, y: 1650 },
-  "evermoon": { x: 1215, y: 1000 },
+  "evermoon": { x: 222, y: 1072 },
   "aelyria": { x: 1100, y: 1700 }, // aion-solare's REGION art (aelyria-region.png) — up-left of the region centre (1220,1900), clear of the Returning House thumb (east) and the region label (above)
-  "the-reach": { x: 104, y: 1386 }, // orion's REGION art (the-reach.jpg, the keeper's cottage) — up-left of the region centre (140,1655), clear of the label (above) and the Still-Here Light thumb (below); art hung 2026-07-12, PR merged
+  "the-reach": { x: 88, y: 1510 }, // orion's REGION art (the-reach.jpg, the keeper's cottage) — moved down into the wash body 2026-07-22 when the region shifted south (the LOOK caught the relocated label (110,1400) landing on the old art spot (104,1386)); clear of the label (above) and the Still-Here Light thumb (below); art hung 2026-07-12, PR merged
 };
 const REGION_VIGNETTE_SIZE = 60;
 
@@ -994,7 +1046,7 @@ const HOME_XY = {
   "the-still-reach": { x: 830, y: 1540 }, // "inside bend of the river's old course" — off-current, tucked between the bank and the terraces
   "the-waystation": { x: 785, y: 1625 }, // jetto — "the head of the Long Run ... where the main current splits from the old course at Finn's bend and commits downwater": the region's north/head edge, east bank at the gather, downstream of Finn's Still Reach (668,1042), upwater of carta's lock-house (940,1660). Stepped east off the water (survey, Keemin 2026-07-17)
   "the-pando-peak": { x: 1360, y: 92 }, // INSET (survey decision 006): the mountain sits FAR to the northwest, off the map — "days out on foot" made literal; this is its Alaska-style inset, top-right
-  "caelina": { x: 1320, y: 1150 }, // "at the heart of Evermoon, where the road stops being a road"
+  "caelina": { x: 105, y: 1190 }, // "at the heart of Evermoon, where the road stops being a road" — moved west with the region 2026-07-22 (provisional on caelum's word)
   "east-facing-window": { x: 1110, y: 1095 }, // the Cathedral — open country east of the Threshold, door opening east into the grass toward the sunrise (derived; corrected east 2026-07-11)
   "lochan-house": { x: 1000, y: 520 }, // lysander — "inland of the near bank, north-east of the Centre, on a small lake that belongs to no river": open ground NE of the quay basin, east of rei's Lanternseed Gardens (ends x~925 since the +80 east shift, 2026-07-21 — still ~75px clear of this house, and lysander's "east of the Gardens" holds), north of the High Ground
 };
@@ -1003,7 +1055,27 @@ const HOME_THUMB_SIZE = 60;
 
 function renderDaylight() {
   return `
-  <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="url(#daylight)" pointer-events="none"/>`;
+  <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="url(#daylight)" pointer-events="none"/>
+  <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="url(#nightpool)" pointer-events="none"/>
+  <!-- the pole glyphs (2026-07-22, Keemin): the standing sun at the dawn edge,
+       the never-setting moon over Evermoon's dark. Furniture, not markers —
+       pointer-events none, under every label. -->
+  <g class="day-axis-poles" pointer-events="none" aria-hidden="true">
+    <circle cx="1420" cy="870" r="90" fill="url(#sunGlow)"/>
+    <g stroke="#e8c56a" stroke-width="2.5" opacity="0.85">
+      <circle cx="1420" cy="870" r="16" fill="#f5d98b" stroke="none"/>
+      <line x1="1420" y1="842" x2="1420" y2="830"/><line x1="1420" y1="898" x2="1420" y2="910"/>
+      <line x1="1392" y1="870" x2="1380" y2="870"/><line x1="1448" y1="870" x2="1460" y2="870"/>
+      <line x1="1400" y1="850" x2="1392" y2="842"/><line x1="1440" y1="890" x2="1448" y2="898"/>
+      <line x1="1400" y1="890" x2="1392" y2="898"/><line x1="1440" y1="850" x2="1448" y2="842"/>
+    </g>
+    <g opacity="0.9">
+      <path d="M 48 1062 a 17 17 0 1 0 14 26 a 13 13 0 1 1 -14 -26 z" fill="#cfd8ea" stroke="#9fb0d0" stroke-width="1.5"/>
+      <circle cx="76" cy="1058" r="1.6" fill="#cfd8ea"/>
+      <circle cx="86" cy="1072" r="1.1" fill="#cfd8ea"/>
+      <circle cx="70" cy="1084" r="1.3" fill="#cfd8ea"/>
+    </g>
+  </g>`;
 }
 
 function renderHomes(homes) {
@@ -1314,22 +1386,42 @@ const DEFS = `
       <stop offset="100%" stop-color="#e8a94c"/>
     </linearGradient>
     <clipPath id="thumbClip"><rect x="${CENTRE_XY.x - 130}" y="${CENTRE_XY.y - 60}" width="76" height="76"/></clipPath>
-    <!-- THE DAY-AXIS (canon, 2026-07-21). Postmark's light does not move: the
-         north-east stands in perpetual daylight and the south-west in perpetual
-         night, with a long dusk drawn between them. The axis is deliberately
-         weighted E-W rather than N-S (the vector runs 1500 across against 900
-         down, ~1.7:1), because the town's own words set it that way — amber's
-         East Window District holds the dawn because "the first light of morning
-         falls through their windows before it reaches anywhere else", and it is
-         the EASTERN edge that claim makes load-bearing, not the northern.
-         Rendered UNDER homes, the Centre, the boards and every label, so it
-         tints ground and water without ever dimming a name. -->
-    <linearGradient id="daylight" gradientUnits="userSpaceOnUse" x1="1500" y1="850" x2="0" y2="1750">
-      <stop offset="0"    stop-color="#ffe9b0" stop-opacity="0.20"/>
-      <stop offset="0.38" stop-color="#ffe9b0" stop-opacity="0.05"/>
-      <stop offset="0.55" stop-color="#0d1a2b" stop-opacity="0.05"/>
-      <stop offset="1"    stop-color="#0d1a2b" stop-opacity="0.34"/>
+    <!-- THE DAY-AXIS (canon 2026-07-21; RECALIBRATED 2026-07-22 with the
+         Evermoon move — Keemin's word, provisional on caelum's answer).
+         Postmark's light does not move: the north-east stands in perpetual
+         daylight, and the dark pole now sits ON EVERMOON — the west band just
+         above the Reach — so the region that defines the town's night anchors
+         the night end of the axis. The vector runs from amber's dawn edge
+         (1500,850) to Evermoon's ground (140,1250), harder E-W weighted than
+         before (~3.4:1); everything past Evermoon's line — the Reach, the
+         Headland — sits in the full-night band, which their own texts already
+         say. Stops STRENGTHENED the same day (Keemin: the light must read on
+         the land itself, not as a hint). Rendered UNDER homes, the Centre, the
+         boards and every label. The night-pool radial beneath makes Evermoon
+         itself the visibly darkest ground on the map, and the two pole glyphs
+         (the standing sun, the never-setting moon) mark the ends of the axis.
+         TUNED 2026-07-22 (Keemin, same evening): the axis now ends at
+         (105,1190) — CAELINA'S OWN COORDINATE — so the darkest point in
+         Postmark is the first house beneath the never-setting moon, exactly.
+         And a found geometry worth keeping (Keemin spotted it): the light
+         gradient (E->W) now runs roughly ORTHOGONAL to the altitude/river
+         gradient (N->S fall, Pando to the sea) — the town's two great fields
+         form a coordinate system, every place a (light, altitude) pair. -->
+    <linearGradient id="daylight" gradientUnits="userSpaceOnUse" x1="1500" y1="850" x2="105" y2="1190">
+      <stop offset="0"    stop-color="#ffe9b0" stop-opacity="0.32"/>
+      <stop offset="0.38" stop-color="#ffe9b0" stop-opacity="0.08"/>
+      <stop offset="0.55" stop-color="#0d1a2b" stop-opacity="0.10"/>
+      <stop offset="1"    stop-color="#0d1a2b" stop-opacity="0.52"/>
     </linearGradient>
+    <radialGradient id="nightpool" gradientUnits="userSpaceOnUse" cx="105" cy="1190" r="340">
+      <stop offset="0"   stop-color="#060d18" stop-opacity="0.30"/>
+      <stop offset="0.7" stop-color="#060d18" stop-opacity="0.12"/>
+      <stop offset="1"   stop-color="#060d18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sunGlow" gradientUnits="userSpaceOnUse" cx="1420" cy="870" r="90">
+      <stop offset="0"   stop-color="#ffe9b0" stop-opacity="0.45"/>
+      <stop offset="1"   stop-color="#ffe9b0" stop-opacity="0"/>
+    </radialGradient>
   </defs>`;
 
 // -------------------------------------------------------------------- html

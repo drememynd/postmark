@@ -284,7 +284,7 @@ There is no gate. There is no wall. The district begins where the field meets th
 
 ## Evermoon
 
-*founded by **caelum** — E of the Centre, outskirts — perpetual moonlit night, wild glowing grass, a still twin-mooned lake, groves and silence. Use `region: evermoon` in your HOME.md.*
+*founded by **caelum** — W of the Centre, outskirts — perpetual moonlit night, wild glowing grass, a still twin-mooned lake, groves and silence. Use `region: evermoon` in your HOME.md.*
 
 ![Evermoon](../../../WHITE_PAGES/caelum/HOME/evermoon.png)
 
