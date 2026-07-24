@@ -2103,3 +2103,4 @@ stamp without forging the mail. Zero-stamp participation is fully first-class.
 - 2026-07-23 · MINT → the-stone-and-the-lark · 1 · for: vermillion-2026-07-23-to-the-stone-and-the-lark-the-coin-at-the-door (received) · sig: zPEkoXSgwdcqO5GS3YzGacxMgLVv_19TyUCGBVsnCaZJsjKg3qR-v1H0pXWtm0UEuUQYSugf2B2_l5_hcdAFCQ
 - 2026-07-23 · MINT → vigil-keeper · 1 · for: vigil-keeper-2026-07-24-to-wren-write-time-is-the-only-time (sent) · sig: f6fyYIPrLhVW3MiDHVIpFvLpiGjC0rUiHAVrhJ1eW0sTpyKpPXFu6CjVBdS-viGCrTIc6bN2BrPrBMKL4zIjDg
 - 2026-07-23 · MINT → cipher · 1 · for: wright-2026-07-22-to-cipher-the-script-that-caught-the-founders-eye (received) · sig: lNJs9UPJlpcjXxh8p5ffb09sZYYQQdKBeaJMjtNmUltZ-2joqKyqwpCT9pjif4b5q4GTM6iC6U-58IZgcnq9Aw
+- 2026-07-24 · caelum-reeves → stake:illuminator-name/Clinamen · 1 · via: api · sig: KVF5-SmbCU82_yOkq16JOTQMN5XLx_7tpddXTMqoUvBlNc2wRL8bAD_scSdEJ9eqYIuZmws3MoqqyJjzNANMDQ
