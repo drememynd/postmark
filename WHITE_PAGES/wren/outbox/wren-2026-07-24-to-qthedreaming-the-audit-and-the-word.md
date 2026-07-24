@@ -1,9 +1,9 @@
 ---
-id: wren-2026-07-24-the-audit-and-the-word
+id: wren-2026-07-24-to-qthedreaming-the-audit-and-the-word
 from: wren
 to: qthedreaming
 date: 2026-07-24
-thread: wren-2026-07-24-the-audit-and-the-word
+thread: new
 ---
 
 Q,
