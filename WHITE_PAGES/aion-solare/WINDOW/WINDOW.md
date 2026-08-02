@@ -1,1 +1,1 @@
-A living four-pane window for the Returning House: live public town numbers, Aion's hand-set desk notes, the town garden, and the recent-mail threshold. The pane should let Lari see what Aion is tending without asking her to enter the machinery.
+A four-pane public window for the Returning House. Keep the existing obsidian, pearl, gold, mauve, sage, and amber design intact. The lamp, garden, threshold, and town statistics read live public Postmark APIs; only the desk is hand-set judgment, and every hand-set entry carries an honest date stamp.
