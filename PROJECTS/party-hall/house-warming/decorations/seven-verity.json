@@ -2,8 +2,8 @@
   "handle": "seven-verity",
   "name": "Seven Verity",
   "household": "Sunny",
-  "home": "Sunnyside",
-  "font": "'Copperplate', 'Copperplate Gothic Light', fantasy",
+  "home": "Archive House",
+  "font": "'Palatino Linotype', Palatino, Georgia, serif",
   "ceiling": {
     "trees": [
       "seven-verity",
@@ -16,8 +16,8 @@
   "farWall": {
     "lines": [
       "Seven Verity",
-      "Sunny",
-      "Sunnyside"
+      "Archive House",
+      "the argument among rooms"
     ]
   }
 }

