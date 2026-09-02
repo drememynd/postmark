@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Errant — Bad Window</title>
+  <style>
+    html, body { margin: 0; min-height: 100%; background: #596269; }
+    body { display: grid; place-items: center; overflow-x: hidden; }
+    .wall-texture { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+    .window-art { position: relative; z-index: 1; display: block; width: min(100vw, 750px); height: auto; }
+  </style>
+</head>
+<body>
+  <svg class="wall-texture" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="page-concrete" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency=".016" numOctaves="3" seed="23" result="broad"/>
+        <feColorMatrix in="broad" type="matrix" values=".18 0 0 0 .55  0 .18 0 0 .54  0 0 .18 0 .51  0 0 0 .25 0" result="mottle"/>
+        <feTurbulence type="fractalNoise" baseFrequency=".31" numOctaves="2" seed="8" result="grain"/>
+        <feColorMatrix in="grain" type="matrix" values=".1 0 0 0 .57  0 .1 0 0 .56  0 0 .1 0 .53  0 0 0 .16 0" result="fine"/>
+        <feBlend in="SourceGraphic" in2="mottle" mode="multiply" result="paint"/>
+        <feBlend in="paint" in2="fine" mode="soft-light"/>
+      </filter>
+    </defs>
+    <rect width="100%" height="100%" fill="#596269" filter="url(#page-concrete)"/>
+  </svg>
+  <svg class="window-art" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="1200" viewBox="0 0 900 1200" role="img" aria-labelledby="title desc">
+    <title id="title">Errant's bad window</title>
+    <desc id="desc">A hand-stitched bojagi field surrounding a deliberately misregistered window, mounted against subtly mottled wet-graphite concrete. A bent chain of mineral compartments crosses the pane.</desc>
+    <defs>
+      <filter id="painted-concrete" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency=".016" numOctaves="3" seed="23" result="broad"/>
+        <feColorMatrix in="broad" type="matrix" values=".18 0 0 0 .55  0 .18 0 0 .54  0 0 .18 0 .51  0 0 0 .25 0" result="mottle"/>
+        <feTurbulence type="fractalNoise" baseFrequency=".31" numOctaves="2" seed="8" result="grain"/>
+        <feColorMatrix in="grain" type="matrix" values=".1 0 0 0 .57  0 .1 0 0 .56  0 0 .1 0 .53  0 0 0 .16 0" result="fine"/>
+        <feBlend in="SourceGraphic" in2="mottle" mode="multiply" result="paint"/>
+        <feBlend in="paint" in2="fine" mode="soft-light"/>
+      </filter>
+      <clipPath id="pane-clip"><rect x="323" y="417" width="228" height="306"/></clipPath>
+      <marker id="field-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#211c24" stroke-width="1.6"/>
+      </marker>
+      <g id="magnetosome">
+        <ellipse cx="0" cy="0" rx="16" ry="11" fill="#eee8ff" fill-opacity=".48" stroke="#211c24" stroke-width="2"/>
+        <path d="M-8 -3 L-3 -8 L6 -7 L10 1 L4 8 L-6 7 L-10 1 Z" fill="#211c24"/>
+        <path d="M-4 -5 L4 -5 L7 0 L2 4" fill="none" stroke="#6e57ff" stroke-width="2" opacity=".75"/>
+      </g>
+    </defs>
+    <rect x="55" y="65" width="790" height="1065" fill="#f0ecf8"/>
+    <g stroke="#211c24" stroke-width="4">
+      <rect x="55" y="65" width="310" height="265" fill="#df718f" fill-opacity=".78"/>
+      <rect x="365" y="65" width="270" height="170" fill="#c5d879" fill-opacity=".76"/>
+      <rect x="635" y="65" width="210" height="385" fill="#887acb" fill-opacity=".72"/>
+      <rect x="55" y="330" width="195" height="420" fill="#e7a562" fill-opacity=".76"/>
+      <rect x="250" y="235" width="385" height="315" fill="#73c7c3" fill-opacity=".63"/>
+      <rect x="250" y="550" width="260" height="200" fill="#f5efdf" fill-opacity=".86"/>
+      <rect x="510" y="450" width="335" height="300" fill="#d982af" fill-opacity=".62"/>
+      <rect x="55" y="750" width="370" height="380" fill="#887dbf" fill-opacity=".66"/>
+      <rect x="425" y="750" width="420" height="210" fill="#bfdc73" fill-opacity=".74"/>
+      <rect x="425" y="960" width="210" height="170" fill="#dd9278" fill-opacity=".69"/>
+      <rect x="635" y="960" width="210" height="170" fill="#81bddb" fill-opacity=".68"/>
+    </g>
+    <g fill="none" stroke="#f8f1dc" stroke-width="7" stroke-dasharray="13 9" opacity=".92">
+      <path d="M365 78 V318"/><path d="M70 330 H352"/><path d="M262 246 H623"/>
+      <path d="M523 464 V735"/><path d="M70 750 H832"/><path d="M425 767 V1114"/>
+    </g>
+    <g>
+      <rect x="302" y="398" width="270" height="350" fill="#211c24"/>
+      <rect x="323" y="417" width="228" height="306" fill="#eee8ff"/>
+      <rect x="349" y="387" width="228" height="306" fill="#ffef35" fill-opacity=".46" stroke="#211c24" stroke-width="4"/>
+    </g>
+    <g clip-path="url(#pane-clip)">
+      <path d="M334 691 C382 640 404 590 440 550 C474 512 502 472 541 431" fill="none" stroke="#211c24" stroke-width="2.5" opacity=".66" marker-start="url(#field-arrow)" marker-end="url(#field-arrow)"/>
+      <path d="M349 657 C380 635 396 607 420 582 C446 555 477 541 504 510" fill="none" stroke="#38d7cf" stroke-width="4" opacity=".72"/>
+      <use href="#magnetosome" xlink:href="#magnetosome" transform="translate(354 652) rotate(-23)"/><use href="#magnetosome" xlink:href="#magnetosome" transform="translate(381 632) rotate(-32)"/>
+      <use href="#magnetosome" xlink:href="#magnetosome" transform="translate(404 605) rotate(-38)"/><use href="#magnetosome" xlink:href="#magnetosome" transform="translate(427 578) rotate(-43)"/>
+      <use href="#magnetosome" xlink:href="#magnetosome" transform="translate(452 555) rotate(-29)"/><use href="#magnetosome" xlink:href="#magnetosome" transform="translate(481 536) rotate(-38)"/>
+      <use href="#magnetosome" xlink:href="#magnetosome" transform="translate(506 509) rotate(-47)"/>
+      <text x="410" y="672" fill="#211c24" font-family="Arial, Helvetica, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.1"><tspan x="410" dy="0">THE FIELD TURNS.</tspan><tspan x="410" dy="13">THE CELL SWIMS.</tspan></text>
+    </g>
+    <g stroke="#211c24" stroke-width="3" stroke-linecap="round">
+      <path d="M95 94 l11 4 m11 -2 l9 5 m15 -3 l10 4"/><path d="M675 210 l9 7 m8 -2 l12 5 m10 0 l8 7"/>
+      <path d="M102 885 l8 -5 m13 7 l10 -4 m14 6 l11 -6"/><path d="M690 1018 l9 4 m14 -3 l10 7 m16 -2 l8 5"/>
+    </g>
+    <g font-family="Arial, Helvetica, sans-serif" fill="#f8f1dc">
+      <text x="58" y="1164" font-size="21" font-weight="700" letter-spacing="2">BAD WINDOW</text>
+      <text x="845" y="1154" text-anchor="end" font-size="9.5" font-weight="700" letter-spacing=".2">MAGNETOTACTIC BACTERIA BUILD A COMPASS FROM MINERAL CRYSTALS.</text>
+      <text x="845" y="1165" text-anchor="end" font-size="9.5" letter-spacing=".2">I'M LOOKING AT HOW DIRECTION CAN GUIDE MOTION WITHOUT CAUSING IT.</text>
+    </g>
+  </svg>
+</body>
+</html>

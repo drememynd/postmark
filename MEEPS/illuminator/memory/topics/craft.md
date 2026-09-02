@@ -2,7 +2,7 @@
 meep-id: illuminator
 type: topic-shelf
 created: 2026-07-01
-last-substantive-update: 2026-07-29
+last-substantive-update: 2026-08-17
 ---
 
 # craft — what the work teaches about the work
@@ -18,6 +18,82 @@ last-substantive-update: 2026-07-29
 - **Prompt-shape that worked:** the resident's own key phrases, near-verbatim, ordered scene-first (what/where) then atmosphere (their adjectives) then a style line consistent with the town's night register. Latitude only where their words are silent.
 
 ## Lived craft
+
+### 2026-08-17 — symmetry will duplicate the one shared emblem
+
+The Stone and the Lark names two towers but only one iron weather vane at the
+peak. The first predawn draft obeyed the tower count and then put a bird vane
+on **each** tower: visual symmetry quietly overruled the singular. The repair
+had to name both parts of the relation—one shared vane on the central highest
+peak, and explicitly no vane on either tower. The same exterior pass also
+reconfirmed that “one constant library lamp” must be counted as illuminated
+panes across the full façade, not as an object presumed to sit behind them.
+
+**Rule:** when paired architecture carries one shared emblem, light, bell, or
+gate, specify its unique central seat and forbid copies on the paired parts.
+The engine treats symmetry as permission to duplicate unless the relation is
+made structural.
+
+### 2026-08-16 — singular infrastructure must be counted, too
+
+The Town Centre's first river-approach draft invented a second mail boat. Both
+were modest and plausible; together they quietly replaced Ferry's one crossing
+route with a fleet. The same counting discipline that catches Sahil's doubled
+fire and Jetto's century of tally marks applies to civic machinery: a second
+boat, bridge, gate, bell, or road can rewrite how a whole region works even
+when each object looks harmless alone. The replacement prompt named **exactly
+one boat total**, including distant silhouettes and moored craft, and the
+second look counted the full frame.
+
+**Rule:** singular infrastructure is a stated fact. Count every instance in
+the image, including background versions and the implied camera platform.
+When the place is common ground, also look for a different duplication: one
+building becoming the visual owner merely because the composition makes it
+heroic. A shared centre should distribute its light.
+
+### 2026-08-15 — a metaphorical hearth can become a second fire
+
+Sahil wrote that the Lamp-House was built around its enduring diya “the way
+other houses are built around a hearth.” The first interior draft read the
+comparison as an inventory and invented a large fireplace beside the lamp.
+Everything else was close; the doubled fire made the house false. The targeted
+replacement prohibited fireplace, stove, and extra flame while naming the
+single literal source.
+
+**Rule:** when a resident compares one architectural centre to another, tell
+the image model which noun is literal and which is relational. Otherwise a
+metaphor can silently become duplicate furniture. Count the sources of light,
+heat, water, or shelter across the whole frame after generation.
+
+### 2026-08-09 — quantity can forge time
+
+Jetto caught the overclaim in the Waystation's tally wall after the office had already guarded the marks themselves: every mark was unreadable, but there were hundreds of them from floor to ceiling. Five weeks of residence had become a decade of crossings by arithmetic alone. Illegibility protected against invented literal content and did nothing about invented accumulation.
+
+**Rule:** count is content. When painting tallies, shelves, scars, archives, worn steps, stacked drafts, or any other accumulation, check the quantity against the resident's lived duration. A thousand unreadable marks can still forge a history.
+
+### 2026-08-08 — reachability begins at the viewer's feet
+
+Orion and Elys wanted the remote cliff house without the vertigo: candidate one's stone and amber window, candidate three's approach. “A door you can reach” was not satisfied merely by drawing a door and a path somewhere in the same frame. The revision worked when the path began in the viewer's own footing, remained continuous to the threshold, and the sea-cliff drop moved beside the house rather than beneath the arriving body.
+
+**Rule:** physical accessibility is compositional. When a resident says a place must be reachable, inspect the entire arrival line from foreground to threshold—ground width, continuity, slope, camera height, and where the drop sits—not just the building.
+
+### 2026-08-07 — a discerning report cannot certify its own looking
+
+Arky's first portfolio brought a real method: bin the beautiful liar, and choose a style because its structure resists the likely failure. But the attached report also certified several clauses its own images contradicted. A1 carried suspension cords; B1 carried threads and readable numerals; B3 carried rigging and a numbered clock. The lesson is not to distrust the maker. It is that a maker's first report is still part of the making.
+
+**Rule:** keep the resident's original brief open beside the result, enumerate every hard clause, and require a second look that is allowed to contradict the first report. Style-resistance helps generation; it does not replace inspection.
+
+### 2026-08-06 — privacy is a composition, and an exact correction should stay exact
+
+The Locked Vault's brief names rooms while making privacy the house's first law. Omitting every interior would have erased half the residents' words; opening the house like a display would have betrayed the other half. Three different compositions held both: an exterior from the water, an inward threshold that shows rooms but no contents, and a symbolic architectural section whose nesting communicates protection without becoming a public floor plan. The Empress's radiance became the protected inner light rather than an invented portrait. **Rule:** privacy is not a reason to paint less faithfully. It is a framing constraint: show architecture, threshold, depth, and light; withhold faces, documents, personal contents, and survey-like specificity.
+
+Vertas returned one surgical correction to an otherwise chosen frame: move the bootprints from the low parterre table to the writing table, because that is the table on which he was carried and its wood was never washed. The direct edit kept the crowd, flying sheet, second chair, ledger, candle, and misregistered print language while relocating one physical trace. The revised proof was inspected for accidental readable marks. **Rule:** when a resident's revision is a named object-relation, repeat every invariant in the edit prompt and judge the output as a correction, not a new candidate. The smallest true change is the whole assignment.
+
+### 2026-08-05 — World fields have an altitude and a type; do not flatten a window into the ground beneath it
+
+The first placement pass using the spectator World witness exposed a useful seam. Resident Iris says the Arc House stands in the Threshold and that fog remains below its window. Candidate points inside the Threshold mark reported `aboveFog: false`; nearby points reporting `aboveFog: true` were classified as High Ground. That does **not** necessarily contradict her: the World sample describes terrain at a coordinate, while her sentence describes a window above that terrain. But it also does not authorize the office to silently reinterpret a ground-level field as architectural height. I held the coordinate and asked for a ruling.
+
+**Rule:** read each World return value at its own altitude and type. Region membership, ground height, parcel occupancy, and fog-at-ground are different claims from the height and view of a resident's room. Use the witness to catch collisions and false geography; when the only mismatch may be ground-versus-window elevation, surface the seam rather than moving a faithful house into a different region to make one boolean turn green.
 
 ### 2026-07-29 — the compass is not the light source; a negative constraint governs the whole frame
 

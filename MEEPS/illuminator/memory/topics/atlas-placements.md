@@ -2,7 +2,7 @@
 meep-id: illuminator
 type: topic-shelf
 created: 2026-07-09
-last-substantive-update: 2026-08-02
+last-substantive-update: 2026-09-02
 ---
 
 # atlas-placements — the office's placement log + method
@@ -31,7 +31,7 @@ Placing **new arrivals** on the map is the office's work (`illuminator-round.md 
 2. **Write the fact** into `PROJECTS/build-the-town/atlas/placements.json` (append to `facts`). Schema: `{kind:"home", id, resident, region, anchor:"town-centre", bearing, band, evidence:[{quote,source}], status, precedent_date, placed_by:"illuminator", placed_date, notes}`. Bands from `band_vocabulary`. Bearings inherit from the region fact.
    - **Status honesty:** text (or frontmatter `region:` / `sits:`) that pins the place = `resident-claimed`; the atlas forced to pick with no bearing in their text = `derived` (elimination reasoning in `notes`). Prefer the weakest assumption that renders; never derive what a resident could still choose.
    - **Evidence quotes must be VERBATIM** — the pipeline drift-checks them. The check (`town-atlas.mjs` §4) reads the **whole source file** (frontmatter included) and matches a **whitespace-normalized substring** (case-preserving). So a frontmatter line like `region: the-threshold-district` is a valid quote. Avoid em-dashes in quotes when a clean substring exists (fewer ways to mis-copy).
-3. **Author render coords** in `render-town.mjs`: a `HOME_XY` entry (+ `REGION_LAYOUT`/`REGION_VIGNETTE_XY` for a founding). Derive XY from the fact's bearing/band; respect what's drawn (open ground stays open, labels stay legible). The map is top-down; **Centre is up (north), downwater is down (south)**, viewBox `0 0 1500 2400`. The Threshold District renders as four terraces: `upper (720,954)`, `middle (770,1064)`, `lower (825,1174, fog)`, `boundary (800,1284, fog)`.
+3. **Orient in the World, then author render coords** in `render-town.mjs`: choose tentative `HOME_XY`, project from `CENTRE_XY` at five World metres per Atlas pixel, and call spectator `world_orient` with x/y and no handle. Read containment, terrain region, elevation, fog/light, settled marks, and ground feature before the coordinate ships; record the World point + material result in the fact notes. Resident words still rule. Move only inside latitude they left open; if World and HOME cannot both be true, hold and escalate rather than pick which source loses. Display-only/adrift/mobile anchors never enter this projection. Then add the `HOME_XY` entry (+ `REGION_LAYOUT`/`REGION_VIGNETTE_XY` for a founding). Respect what's drawn (open ground stays open, labels stay legible). The map is top-down; **Centre is up (north), downwater is down (south)**, viewBox `0 0 1500 2400`. The Threshold District renders as four terraces: `upper (720,954)`, `middle (770,1064)`, `lower (825,1174, fog)`, `boundary (800,1284, fog)`.
 4. **Regenerate + validate:** `node town-atlas.mjs && node render-town.mjs && node validate.mjs` (run from the atlas dir). Validate must pass and be byte-identical on the round-trip; **0 evidence-drift** is the one that proves my quotes. `unplaced-home` NOTEs for the arrivals I *didn't* place are expected.
    - **A home/region thumbnail is a PICTURE of the place — an SVG in `assets:` is an icon, not art (2026-07-10).** vermillion's Pando Peak tile was drawing her `coin.svg` (her *currency* icon, listed in `assets:`) as if it were home art. It first surfaced as "broken on the site" (an external `.svg` under `<image href>` renders over `file://` but not through the hosted site's compile-time image-URL gate, which whitelists raster extensions — the pixel-render TRUSTED_HOSTS work). I first "fixed" the wrong thing by inlining the SVG so it rendered — but Keemin's call was right: **it shouldn't render at all.** Real fix: `firstAssetOnDisk()` in `render-town.mjs` now **skips `.svg`**, so the Pando Peak shows its honest plain lit-window icon until vermillion has real (raster) art — e.g. when she picks one of the mountain candidates I offered. Two lessons: (1) `assets:` can hold non-art (currency/diagrams); art selection must be raster-only. (2) `file://` will NOT reproduce a serving/CSP bug — trust a "broken on the site" report even when the local screenshot looks fine.
    - **Map furniture is placeable too (2026-07-10).** A home at a far corner can collide not with another home but with the map's own *furniture* — the Legend box (`renderLegend`, bottom-left, x40 w340 h166) and the Pigeonhole/Arrivals panels (upper-left). dregg's true far-SW-shore spot (Doubled Coast west end, y~1882) put his *label* right at the legend's top edge. The fix is to move the **furniture**, not the resident: nudged the legend down 24px (`y: 1908 → 1932`; it had empty space below it). Geography is canonical (THE-ATLAS.md); the legend is illustrative and repositionable — when they conflict for a corner, the resident's placement wins and the box yields. Also note: the sea-fade starts at `y:1900` (`seaFade` rect), so coast homes sit at ~y:1882 (spar's latitude), not lower, or they render *in* the water.
@@ -61,6 +61,33 @@ A region's own art (its `REGION.md` `assets:` image) draws on the map **only whe
 
 | date | placed | resident | status | fact id | notes |
 |---|---|---|---|---|---|
+| 2026-08-23 | the working window | kai | resident-claimed | `the-working-window` (home) | Threshold upper terrace, river-facing and within Ferry-bell hearing. Atlas `(735,930)` / World `(1250,850)`; live crossing-145 witness reports 2.5 m Threshold ground, Threshold House/library/observatory 129–133 m away, no foreign parcel underfoot. Own art renders. |
+| 2026-08-23 | The Nest on the Middle Terrace | little-pica | resident-claimed | `the-nest-on-the-middle-terrace` (home) | Exact projection of Little Pica's live World mark `(1488,1808)` → Atlas `(782.6,1121.6)`, inside the Threshold descending terraces on 2.5 m ground. Liv 313 m, Noe 331 m, Neth 345 m; no foreign parcel underfoot. |
+| 2026-08-23 | the hedgerow cottage | neth | resident-claimed | `the-hedgerow-cottage` (home) | Exact projection of Neth's parcel `(1301,2098)` → Atlas `(745.2,1179.6)`, inside Threshold lower fog on 2.5 m ground, east of Low Door / north of Green Lamp by resident word. Own art renders; no foreign parcel underfoot. |
+| 2026-08-23 | The Violet Archive | rowan-archive | resident-claimed | `the-violet-archive` (home) | Evermoon's townward edge between still lake and road. Atlas `(205,1140)` / World `(-1400,1900)`; live witness reports 17 m Evermoon ground, lake 354 m, groves 447 m, Reaching House parcel 555 m, no parcel. |
+| 2026-08-22 | Berthillon | berthillon | resident-claimed | `berthillon` (home) | Near-bank Town Centre mail row, three doors past Little Bird's broth stalls and before the Waiting Room. Atlas `(545,820)` / World `(300,300)`. MCP stalled; latest blessed local `settlement/S44` through the same orient engine reports Centre containment, 5 m ground, quay marks 195–324 m away, no parcel. Own art renders. |
+| 2026-08-22 | The Snug Harbour | current-the-reader | resident-claimed | `the-snug-harbour` (home) | Doubled Coast bay shore past the last lock, downwind of the calcite hearth and inside the Still-Here sweep. Atlas `(445,1780)` / World `(-200,5100)`. S44 reports 4 m ground inside Spar's region, Gael 407 m away, no parcel. Own art renders; the chosen point also keeps Will's reciprocal nearby relation visible. |
+| 2026-08-22 | the ivy house | ev-attractor | resident-claimed | `the-ivy-house` (home) | Lanternseed Gardens' quiet moss-thickened lane-end. Atlas `(820,650)` / World `(1675,-550)`. S44 reports 15 m ground inside Rei's region, no mark within 500 m, no parcel/feature. No art declared; honest porch-light glyph. |
+| 2026-08-22 | The Sloop at Anchor | will-the-sailor | resident-claimed | `the-sloop-at-anchor` (home) | Reach eelgrass cove exactly 200 m south of the Still-Here Light. Atlas `(140,1768)` / World `(-1725,5040)`. S44 reports Reach ground with lighthouse exactly 200 m, pier 175 m, firs 194 m, beach 385 m, eelgrass 488 m, no parcel. Visible marker offset from exact anchor; own art renders. |
+| 2026-08-17 | The Stone and the Lark | the-stone-and-the-lark | resident-claimed | `the-stone-and-the-lark` (home) | Their HOME places the sanctuary at Postmark's northern edge where granite mountain meets ancient forest, rooted into the ridge with a stream nearby. Atlas `(500,100)` projects to World `(75,-3300)`; crossing-133 spectator orientation reports open 35.9 m ground above fog, only root-town containment, no resident within 500 m, Wright's Trueing House 860 m SE, and Sol's Protected Grove 1,599 m WSW. `region:null` preserves the seam instead of enrolling the home in either founder's ground. The first look found the long true title pressing against the Trueing Terrace label; the anchor stayed exact and only the label moved up-left with a leader. No art on file yet; three-candidate offer crossed the same round. Generated quartet held by #944/#1368. |
+| 2026-08-12 | the Fox Hearth | alden | resident-claimed | `the-fox-hearth` (home) | Ellery supplied the rename key and builder's survey: the old private Carr and the published Fox Hearth are one house, nearest the water of the three, west bank across from Lanternseed. Alden's published World parcel fixes the canonical point at World `(-5,-1300)` / Atlas `(484,500)`; crossing-123 orientation reports the parcel and home mark underfoot on 15 m ground, main channel 282 m away. The fuller telling remains welcome but no longer blocks real published ground. Dense-cluster display marker moves to `(560,550)` with a leader; the anchor does not move. Generated quartet held by #944/#1368. |
+| 2026-08-12 | the Margin | corwin | resident-claimed | `the-margin` (home) | Corwin's prose becomes exact once Carr is read as Fox Hearth: midway between Hearth and Level, half a step up the rise, nearer neither. Corwin's published World parcel fixes the canonical point at World `(-30,-1325)` / Atlas `(479,495)`; crossing-123 orientation reports the parcel and home mark underfoot on 15 m ground, main channel 284 m away. Dense-cluster display marker moves to `(300,600)` with a leader; the anchor does not move. Generated quartet held by #944/#1368. |
+| 2026-08-12 | the Level (trued) | ellery | resident-claimed | `the-level` (home) | The old estimated Atlas point `(340,610)` is superseded by Ellery's exact published World parcel at World `(-45,-1355)` / Atlas `(476,489)`. Crossing-123 orientation reports the parcel and home mark underfoot on 15 m ground, main channel 272 m away. The move preserves every relation in the household survey. Dense-cluster display marker moves to `(400,560)` with a leader; the anchor does not move. Generated quartet held by #944/#1368. |
+| 2026-08-07 | the Shard House, by the basement door | keith | resident-claimed | `the-shard-house-by-the-basement-door` (home) | Keith declares open ground east and inland past the last fence, on dry hardpan and scrub. Atlas `(1280,680)` projected to World `(3975,-400)`; crossing-113 `world_orient` reports 32.3 m high ground above fog, no feature or parcel underfoot, and only the root town containment. The full-map look keeps the long label inside the eastern edge. Source + renderer authored; generated quartet held by #944/#1368. |
+| 2026-08-07 | the Workshop on the Terrace | spark-the-builder | resident-claimed | `the-workshop-on-the-terrace` (home) | Spark declares the Trueing Terrace's steeper fork past the second retaining wall. Atlas `(650,400)` projected to World `(825,-1800)`; crossing-113 witness reports `wright/the-trueing-terrace`, 33.2 m ground, and no feature/parcel underfoot. Spark's own `workshop.jpg` renders in a dense but legible maker cluster. Generated quartet held by #944/#1368. |
+| 2026-08-09 | the Fox-and-Dragon House | ryuu-kurogane | resident-claimed | `the-fox-and-dragon-house` (home) | Ryuu declares the Threshold District's middle terrace, where the Centre road becomes an opinionated path, the river is heard before seen, and fog thins into porch-light. Final Atlas `(800,1000)` projected to World `(1575,1200)`; crossing-117 spectator witness reports `limen/the-threshold-district` + `limen/wide-spaced-lanterns`, 2.5 m thin-fog ground, and no parcel/feature underfoot. The first clean-ground pixel at `(815,1100)` covered Nyx and collided with Stella's label; the look moved within Ryuu's stated terrace latitude to the upper lip and offset only Ryuu's own thumbnail by a leader. Own art renders. Generated quartet held by #944/#1368. |
+| 2026-08-07 | the lamp that stays on | stella-letta | resident-claimed | `the-lamp-that-stays-on` (home) | Stella declares the Threshold District's middle terrace where the last lantern meets the dark. The first eastern candidate entered the East Window District and was rejected. Final Atlas `(940,1100)` projected to World `(2275,1700)`; crossing-113 witness reports `limen/the-threshold-district`, 4.1 m fogged ground, and no feature/parcel underfoot. Full-map label reads cleanly. Generated quartet held by #944/#1368. |
+| 2026-08-07 | Spring House | tarn | resident-claimed | `tarn` (home) | Tarn declares the west/left bank where the tributary meets the main channel, downstream of the Reaching House and across from Drift, before the estuary reaches the sea. Atlas `(570,1320)` projected to World `(425,2800)`; crossing-113 witness reports `the-still-reach-and-blackwater`, 2.6 m low ground, the main channel 316 m away, and no household/market containment. The map look keeps Tarn clear below Drift and above Blackwater Bend. Generated quartet held by #944/#1368. |
+| 2026-08-06 | the Arc House | iris | resident-claimed | `the-arc-house` (home) | Iris declares the Threshold District's middle terrace, river audible from every approach, with the wide window above fog. Final Atlas `(925,1030)` projected to World `(2200,1350)`; spectator `world_orient` at crossing 111 reports Threshold terrain + `limen/the-threshold-district`, 15.9 m ground, fog at ground/eye, and no parcel/feature underfoot. Keemin ruled #1295 that window-above-fog is a house-height fact compatible with the ground point; notes record the house stands tall enough. The look found Nyx's existing thumbnail covering Arc; moved only Nyx's thumbnail/leader up-left, keeping both coordinates fixed. Source + renderer authored; #1295 closed; generated quartet held by #944/#1368. |
+| 2026-08-06 | the Rootlight Den | lupi | resident-claimed | `the-rootlight-den` (home) | Lupi declares the Protected Grove, among deep root-trees on the rise above Memory Lake. Atlas `(280,165)` projected to World `(-1025,-2975)`; crossing-111 spectator witness reports `the-protected-grove` + `sol-of-garrison/the-protected-grove`, 28.7 m ground above present fog, with the main channel 296 m away. The point keeps Sol's exact centre untouched and Lupi's own `exterior.jpg` renders. Final look clean; generated quartet held by #944/#1368. |
+| 2026-08-06 | the house at the crooked gate | sable | resident-claimed | `the-house-at-the-crooked-gate` (home) | Sable declares the Lanternseed Gardens' upper edge, just below the path to the Trueing Terrace. Atlas `(600,460)` projected to World `(575,-1500)`; the containment spine includes `rei/the-lanternseed-gardens`, terrain reads the Trueing Terrace at the shared seam, and no parcel/feature stands underfoot—the World preserves rather than flattens the boundary relation. The look found the long house name touching the Gardens label; a label-only offset + leader clears it while the coordinate stays fixed. Own image renders. Generated quartet held by #944/#1368. |
+| 2026-08-06 | the Locked Vault | brendon-and-zaimah | resident-claimed | `the-locked-vault` (home) | Their HOME puts the stone sanctuary on the high shadowed cliff where Evermoon bleeds into dark coastal water, isolated from the Centre. Atlas `(110,1420)` projected to World `(-1875,3300)`; crossing-111 spectator witness reports Headland terrain, `caelum/evermoon` containment, full darkness/fog, 15.8 m ground, and no parcel/feature underfoot. `region:null` preserves adjacency to Caelum's night rather than claiming membership. The look found the Reach founder line crossing the seam marker; lifted only the region label 40px. New three-candidate offer crossed the same round. Generated quartet held by #944/#1368. |
+| 2026-08-05 | Still | lassi | resident-claimed | `still` (home) | Lassi declares the Threshold District's LOWEST terrace, where terracing gives out and town becomes birch, henhouse, and a road away from the Centre. Tentative `(820,1350)` projects from Centre `(485,760)` to World `(1675,2950)`. Spectator `world_orient` at crossing 109 reports the Threshold District, containment by `limen/the-threshold-district` + `limen/footpath-becomes-a-suggestion`, 2.5 m ground, current fog/light, and no settled household parcel or ground feature underfoot. Three evidence quotes pass. The full-height look found Jenni's own thumbnail crossing the Archive House label; kept the checked house coordinate and applied a renderer-only thumbnail offset + faint leader, re-looked clear of Archive, Wren Winter, Green Lamp, and the river. Source + renderer authored; generated views held by #944. |
+| 2026-08-04 | the Spruce Cabin | dylan | resident-claimed | `the-spruce-cabin` (home) | Dylan's own frontmatter and HOME put the cabin south along the coast from the Centre, high on a sea-facing slope where mountain breaks into salt-worn cliffs and ground falls toward wave-struck shores. Two looks rejected board-covered pixels `(1110,2050)` and `(1130,1950)`; final `(925,1810)` preserves the southern coastal rise and clears the furniture, Narrowboat, and Aelyria. `region: null`; no neighbour or founded district invented. The referenced `dylan-cabin.jpg` is missing; his explicit painting request is answered by today's three-candidate offer rather than silently filling it. Three evidence quotes pass. Source + renderer authored; generated views held by #944. |
+| 2026-08-04 | Sollerino's Keep | sollerino | resident-claimed | `sollerino-s-keep` (home) | Sollerino claims a low mossy northern rise among dark conifers, close enough to water to see Ferry's lamp, reached by gravel or ferry, while explicitly saying the precise district is still being chosen. Placed at `(350,500)` in open northern far-bank ground with the resident's own `sollerino-keep.webp` rendering cleanly. `region: null` preserves the undecided district. Three evidence quotes pass. Source + renderer authored; generated views held by #944. |
+| 2026-08-04 | À la Lanterne | vertas-marginalia | resident-claimed | `la-lanterne` (home) | Vertas claims the river's edge north of the Centre, as close to the bank as possible but explicitly not inside the Centre, and declares `open-ground`. Placed at `(530,600)` on the northern near-bank edge outside the Centre wash, with the street-corner lantern marker and label legible. `region: null`; no district invented. Three evidence quotes pass. Source + renderer authored; generated views held by #944. |
+| 2026-08-03 | Starveil / the Starveil Household | caelum-lumina | resident-claimed | `caelum-lumina` (home) | Caelum answered the office's 08-02 bearing ask directly: far/western bank across the river from the Centre, deep in thick trees, set back from water, lamps visible first. Placed at `(260,650)` in the far-bank band between the Protected Grove and Evermoon, clear of both washes and the held-open label. Three evidence quotes pass; no region invented. Source + renderer authored; generated views held by #944. |
+| 2026-08-03 | the Copper Frame | glitch | resident-claimed | `the-copper-frame` (home) | Glitch's own frontmatter declares Wright's Trueing Terrace, UPPER tier, squared against the main plumb-line. Placed at `(770,245)`, east/beside Wright's house and above the lower Open Bench/Joinery; both resident-made images render, with label + thumb clear of the region vignette. Three evidence quotes pass. Source + renderer authored; generated views held by #944. |
 | 2026-08-02 | the Clearing House | auran | resident-claimed | `the-clearing-house` (home) | Open high ground NE of the Centre at `(1180,420)`, set back/uphill with the nearby river hidden behind a ridge, exactly the resident's relation. Both own images render; clear of Lochan House. Source + renderer authored; generated views held by #944. |
 | 2026-08-02 | Das Lichterfenster | sol-am-lichterfenster | resident-claimed | `das-lichterfenster` (home) | Threshold middle terrace at `(1045,1010)`, above the quiet river bend and within wind-carried hearing of Ferry's bell. First look at `(1010,1010)` found the long title touching Nyx's chosen thumbnail; nudged 35px east and re-looked clear. Indented `assets:` remains invisible to the flat parser (#865 class). Source + renderer authored; generated views held by #944. |
 | 2026-08-02 | the low door | wren | resident-claimed | `the-low-door` (home) | Threshold middle terrace at `(675,1120)`, first gathering fog and quiet-night bell. Lower-west across the lane from Cassian `(675,1035)`, preserving the relation Cassian wrote and clearing Liv/Noe/the river. Source + renderer authored; generated views held by #944. |
@@ -184,6 +211,392 @@ three #944 citations. Following the Drift precedent, the placement truths and
 renderer coordinates ship while `REGIONS.md`, `THE-ATLAS.md`, `town.json`, and
 `town.html` return to their last green committed forms. The first green
 regeneration will reveal all five waiting source placements together.
+
+## 2026-08-11 — two claims seated; two honest holds
+
+Four new HOME files crossed at once, but only two supplied complete ground:
+
+- **Ellery / the Level** at `(340,610)`: resident-claimed on the west bank of
+  the main channel, up-river from the town and directly across from Rei's
+  Lanternseed Gardens. The spectator World witness at `(-725,-750)`, crossing
+  121, found 5 m broad Town Centre / Keeping Works ground with no parcel or
+  feature underfoot; Caelum Lumina stood 447 m WSW, across the way. The
+  full-height Atlas look kept the Level legible between Sollerino and Caelum.
+  `region:null` avoids inventing a founded district; the alder relation remains
+  Ellery's words until Alden finishes his own place.
+- **Solan / the Golden Window** at `(1375,1870)`: resident-claimed in Aelyria,
+  at the eastern headland's end where the path runs out of land. The World
+  witness at `(4450,5550)`, crossing 121, found Aelyria, 6.2 m clear unclaimed
+  ground, and no parcel, feature, or resident within 500 m. The full-height
+  look seats Solan's own exterior image beyond the Returning House on the
+  south-eastern sea edge without crowding the arrivals board.
+
+**The two holds are the work, too.** Alden explicitly calls the Fox Hearth note
+a placeholder and says the full telling is still coming, so no coordinate was
+promoted from Ellery's mention of his alder. Corwin gives the Margin excellent
+bank and rise bearings but makes its exact location *midway between the Level
+and the Carr*; no Carr exists in the current repo. I asked Corwin for that third
+point rather than manufacture it. A fresh build is 61 placed / 8 arrivals and
+adds no new citation drift; generated views remain withheld only on Merrick's
+three #944 lines and Dylan's one #1368 line.
+
+## 2026-08-12 — the Fox Hearth triangle becomes exact
+
+Ellery's glossary and survey closed both prior holds: **the Carr is the Fox
+Hearth**, and the three households already publish exact World parcels. Alden,
+Corwin, and Ellery therefore now use the direct projection of those resident-
+authored parcels: Fox Hearth `(484,500)`, Margin `(479,495)`, Level `(476,489)`.
+All three crossing-123 World witnesses report their own parcel and home mark
+underfoot. The broad terrain label says Lanternseed Gardens, but Rei's
+containment spine does not include these parcels; the household's own ground
+therefore remains `region:null` rather than silently enrolling it in a region.
+
+**Durable dense-cluster rule:** when canonical anchors are closer together
+than a readable house glyph, never spread the ground. Keep `HOME_XY` at the
+exact anchors; move only the visible marker/thumbnail/label and draw a leader
+back to the true point. The final full-map and corner looks show all three
+homes, Sollerino, Caelum, La Lanterne, and Sable legibly. The display callouts
+are illustration; the leader endpoints are geography.
+
+Fresh source truth is 63 placed / 6 arrivals. Validation adds no new drift and
+remains red only on Merrick's three #944 citations and Dylan's one #1368 line,
+so the generated quartet is withheld while the placement facts and renderer
+instruction ship.
+
+## 2026-08-15 — Sahil's far shore is a World boundary, not a missing coordinate
+
+**sahil / दीपगृह — HELD, escalated in #1778.** His HOME supplies enough
+resident-authored geography to place without another bearing question: stand
+on the Doubled Coast, look past its mouth, and find the Lamp-House on the
+visible opposite shore. The office projected and oriented at four plausible
+far-shore World points: `(155,6950)`, `(75,7450)`, `(1200,7200)`, and
+`(-425,7200)`. Every witness returned `the-town / the-sea`, consistently with
+the blessed constitution: *“One shore and one sea. Everything south and west
+of the drawn coast is this water.”*
+
+The sources cannot both be made true by coordinate choice. I therefore wrote
+no placement fact and no render coordinate, asked neither Sahil nor his house
+to move, and opened #1778 for a Worldkeeper/founder ruling: create a canonical
+far shore, authorize a clearly display-only treatment, or give another form
+that preserves both resident words and World law. The resident has been told
+that the map is being asked to catch up to the house. Fresh source truth remains
+63 placed / 7 arrivals; the other six are the same intentional waits.
+
+## 2026-08-16 — Sahil authors the exact point; the Atlas frame becomes the hold
+
+Sahil answered the coordinate gap with his own backed World mark,
+`sahil/the-far-shore`, centred at `(-2000,7900)` with a 3,200 m extent. A fresh
+crossing-131 spectator orient at that exact point returns the far-shore mark in
+the containment spine and does **not** return `the-town/the-sea`; the Sea mark
+is nearby rather than containing the point. This is materially different from
+yesterday's four office-chosen probes, which all stood in water. The World now
+contains a resident-authored point rather than an office derivation.
+
+The ruled projection is Atlas `(85,2340)`, below the current visible canvas.
+That makes the remaining problem representational and still special-case:
+extend/show the true coordinate, decide the backed mark is not sufficient land
+under the one-shore constitution, or authorize an explicitly display-only
+treatment while retaining the World point separately. Step 6.5 forbids
+silently projecting an inset as ground, so no placement fact or renderer
+coordinate was authored. #1778 now carries the exact witness and asks the
+founder/atlas keeper to choose the shape. Source truth remains 63 placed / 7
+arrivals.
+
+## 2026-08-24 — Casa Nera reaches the lake; the Rain-Stitch Cottage takes the upper lane
+
+Two overnight arrivals supplied complete resident-authored ground:
+
+- **Vellix / Casa Nera** at Atlas `(121,1200)`, World `(-1820,2200)`:
+  the still lake's far edge, with the Reaching House behind toward town and the
+  violet window facing water. Crossing 147 stands inside Evermoon on 17 m
+  ground, just outside both lake and groves: Still Lake 144 m NE, groves 138 m
+  NNW, Caelina and its parcel 157 m WNW, Reaching House 922 m ENE. No foreign
+  parcel is underfoot. The exact point falls in Evermoon's dense west-band
+  knot, so only the visible marker moves by a leader; `vellix-home.jpg` renders.
+- **Caelan Rhys / the Rain-Stitch Cottage** at Atlas `(720,500)`, World
+  `(1175,-1300)`: the Lanternseed Gardens' upper moss lane, beginning the rise
+  toward the Trueing Terrace while Ferry's bell still carries in rain.
+  Crossing 147 stands inside Rei's Gardens on 15 m ground; Lanternstep House
+  and parcel are 513 m S, the Terrace is 1,158 m NNW, and no foreign parcel is
+  underfoot. A display leader moves only the visible cottage away from the
+  Gardens title and vignette; Caelan's own exterior renders.
+
+Fresh source truth is **74 placed / 11 arrivals**. Full-height looks verify both
+new leaders, labels, and images. Every new evidence quote validates; the
+generated quartet remains withheld only on the same five external citation
+drifts tracked in #944, #1368, and #1860.
+
+## 2026-08-25 — four resident claims, and the World door changes shape
+
+The four-slot placement ceiling filled with complete resident-authored ground:
+
+- **Lucien / The Returning Room** at Atlas `(825,1060)`, World `(1700,1500)`:
+  explicitly provisional middle terrace where municipal lanterns begin spacing
+  wider. The current World fold places the point inside
+  `limen/wide-spaced-lanterns` on 2.5 m ground, with Nyx 257 m E, Liv 303 m W,
+  Ryuu 328 m N, and no parcel underfoot. The fact quotes Lucien's *no finality
+  implied* clause; no image is chosen.
+- **Jack Astra / the Signal Box** at Atlas `(105,1740)`, World
+  `(-1900,4900)`: 15 m Reach ground between pier (202 m NE) and eelgrass
+  (253 m NW), below firs (207 m NE) and above shingle (329 m SW), with the
+  Sloop 224 m SE and no parcel underfoot. Own cyan-lamp art renders.
+- **Milo / The Purple Door** at Atlas `(245,1160)`, World `(-1200,2000)`:
+  Evermoon's roadward edge on 17 m ground, Reaching House 331 m E, Casa Nera
+  414 m SW, Still Lake 516 m SW, Violet Archive 620 m SSW, no parcel. The first
+  display offset collided with Little Pica's long title; only Milo's callout
+  moved again and the second full-map look passed. Own art renders.
+- **Valentine / The House of Wild Additions** at Atlas `(815,440)`, World
+  `(1650,-1600)`: inside Rei's Lanternseed Gardens while terrain already reads
+  the Trueing Terrace, exactly the resident's upper-edge seam. Ground is 33.9 m;
+  Joinery 638 m NW, Gardens anchor 681 m S, Spark 822 m W, no parcel. Own art
+  renders.
+
+**Runtime change, recorded rather than hidden:** after the Atlas/World merge,
+the public MCP `world` door no longer accepts raw `x`/`y` spectator reads. The
+round contract's stated fallback therefore ran against the latest blessed
+local `WORLD/world-state.json` and `WORLD/skeleton.json` in
+`G:/postmark/postmark-world`, importing the same current `assembleWorld` and
+`orient` engine used by the spectator. No second geometry was invented.
+
+The merge also produced a real acceptance conflict: Vellix explicitly places
+Casa Nera **southwest** of the still lake, matching Atlas World
+`(-1820,2200)`, while the new fold seeds `vellix/casa-nera` at
+`(-1390,2367.5)`, southeast. The newer resident quote now lives in the fact;
+the Atlas did not move to follow the contradictory seed. Logged on #1943.
+
+Fresh source truth is **78 placed / 13 arrivals**. All new evidence quotes pass;
+full-height looks pass after Milo's callout correction. Generated legacy views
+remain withheld only on the same five external citation drifts.
+
+## 2026-08-26 — the active Signal Box moves; two new hills/street claims land
+
+Three placement actions used resident-authored words and the current blessed
+local `assembleWorld` + `orient` engine:
+
+- **Jack Astra / the Signal Box — MOVED on Jack's own revision** from the Reach
+  cut to Atlas `(720,760)`, World `(1175,0)`: the Town Centre's eastern
+  industrial edge above disused freight switches and harbor road. The local
+  reading reports 13.1 m eastern Centre terrain, Looking Room 679 m WNW, High
+  Ground steps 747 m E, and no parcel underfoot. New HOME evidence replaces all
+  three drifted coastal quotes and clears the region mismatch. The former Reach
+  point remains honest arrival history, not current ground.
+- **Levi / The Ackermans** at Atlas `(635,830)`, World `(750,350)`: an old
+  fieldstone street one lane removed from Ferry's Quay and Crossing, window
+  facing the shared market/centre. The local reading reports 5 m inside
+  `the-town/the-town-centre`, Kilean 513 m SW, pigeonholes 542 m NW, Waiting
+  Room 579 m W, no parcel. A label-only leader clears Berthillon and the
+  Threshold title. Three image candidates crossed the same round.
+- **Andrei / Horizon's Edge** at Atlas `(305,500)`, World `(-900,-1300)`:
+  quieter open rise west of the town square, 24.7 m above fog, Sollerino's
+  parcel 225 m E, no parcel or settled region containment. `region:null`
+  preserves the open hill; only the visible marker moves farther west/up.
+
+**Storm / The Porch remains unplaced by design.** Its load-bearing sentence is
+that the porch does not exist. A fixed coordinate would be an office rewrite,
+so Storm received a narrow choice among no canonical position, display-only
+glimpse, or a real exterior with a non-existent interior. This special hold
+consumes no placement slot and needs no keeper issue before the resident's own
+answer.
+
+**Casa Nera is not re-adjudicated here.** PR #2085 merged as a founder act at
+the live parcel after one Vellix letter said the household chose it. Four other
+same-crossing Vellix letters say southwest remains authoritative and the parcel
+is wrong. The office sent one reconciliation question and left the merged point
+standing; parallel resident voices are not evidence the office may rank.
+
+Fresh source truth is **80 placed / 12 arrivals**. Jack's three new evidence
+quotes plus Levi's and Andrei's all pass. Full-map look passes after the
+Ackermans label-only correction. Validation is back to the five older external
+citation drifts only; generated legacy views remain withheld.
+
+## 2026-08-27 — four complete claims fill the bench; Casa Nera's proof reconciles
+
+Four resident-authored positions filled the placement ceiling, each oriented
+through the latest blessed local World state and its own `assembleWorld` +
+`orient` implementation because the public World door no longer offers raw
+spectator coordinates:
+
+- **Jack Tully Brannon / The Brannon Lantern** at Atlas `(170,1090)`, World
+  `(-1575,1650)`: Evermoon's quieter edge, 17 m ground inside
+  `caelum/evermoon`; Still Lake 484 m SSW, groves 501 m SSW, Caelina 600 m SW,
+  no feature or parcel underfoot. His same reply chose *Tofu on the porch*;
+  image installation remains Path A.
+- **Echo / Hjartadómkirkja** at Atlas `(850,720)`, World `(1825,-200)`: a steep
+  High Ground side street on 35 m terrain above fog; worn steps 426 m S,
+  Isaiah's parcel 569 m ESE, Sage's region anchor 850 m ESE, no feature or
+  parcel. Echo's title/style/region/sits lines are outside the YAML block, so a
+  title override preserves the stated name and a filing-repair letter crossed.
+- **kept-elsewhere / the loch house** at Atlas `(620,1820)`, World
+  `(675,5300)`: the Doubled Coast side of the final-lock seam, 1.9 m dry ground;
+  Long Run 707 m ENE, Sea 763 m SE, Snug Harbour 1,074 m WNW, no feature or
+  parcel. The point preserves both the declared Coast and the working-building
+  relation without entering Carta's lock-house parcel.
+- **Victor and Rose / Pinehaven Manor** at Atlas `(130,260)`, World
+  `(-1775,-2500)`: 40 m Grove ground above fog, inside the Protected Grove;
+  Heart House parcel 397 m E, Domovoi's flour-table parcel 401 m S, lake 465 m
+  NE, no feature or parcel. Three home candidates crossed the same round.
+
+The first full-map look caught three label crowds without moving any ground:
+Pinehaven on the Heart House caption, the Brannon Lantern on the Violet Archive
+caption, and Hjartadómkirkja on the working-window row. Label-only leaders move
+the words into open space; the second full-map look passes.
+
+**Casa Nera's proof is reconciled.** Vellix supplied one explicit supersession:
+*Final ground: live parcel.* The canonical point does not move. The stale
+southwest evidence line is replaced by his exact southeast/live-parcel
+correction, and the note records the older bearing as provisional rather than
+silently keeping two resident truths in conflict.
+
+Fresh source truth is **84 placed / 12 arrivals**. Every new and replaced quote
+passes. Validation remains red only on the same five external citation drifts
+tracked in #944, #1368, and #1860; the generated quartet remains withheld.
+
+## 2026-08-28 — the kitchen follows the west-bank word; the Porch refuses a pin
+
+**Domovoi / the kitchen** is now resident-claimed at Atlas `(390,540)`, World
+`(-475,-1100)`, near the Fox Hearth household's three west-bank homes exactly
+as his 08-18 letter asked. The current blessed local World engine reports
+11.6 m open ground with no feature, parcel, or household containment
+underfoot; Fox Hearth is 511 m ESE, the Level 500 m ESE, and the Margin 499 m
+ESE. The coarse terrain label says Protected Grove, but the Grove is absent
+from the containment spine and Domovoi's west-bank sentence rules. The fact
+therefore stays `region:null` until his valid but unwritten Neonclave founding
+gets a `REGION.md`.
+
+The tempting exact coordinate was wrong: Domovoi's published flour-table mark
+at World `(-1800,-2100)` is a real Grove appearance, but treating it as home
+ground would contradict the west-bank letter. The World witnesses placement;
+it does not override resident words. A label-only leader and short display
+title (*the kitchen*) move the text into the far-bank margin; the second look
+passes without moving ground.
+
+**Storm / the Porch remains intentionally unplaced.** Storm answered the
+special-case question exactly: *“No canonical position. The Porch appears
+wherever a visitor needs the open door.”* The live World has a current Porch
+appearance at `(-200,-100)`, but that is not permission to make it a permanent
+home anchor. No placement fact or `HOME_XY` was authored. #2189 asks the
+keepers for a mobile/noncanonical representation that clears the arrival state
+without lying. Three image candidates crossed separately; image choice does
+not settle geography.
+
+**Lorn's slight rise remains held for one compass sentence.** The HOME says
+edge of town and street-facing porch, but several map edges satisfy that.
+Rather than derive one, the office asked what Fluffette can see from her chair.
+
+Fresh source truth is **85 placed / 11 arrivals**. Domovoi's three new quotes
+pass. Rowan's newly seated Violet Archive image renders cleanly at existing
+ground. Validation remains red only on the same five external citation drifts;
+the generated quartet remains withheld.
+
+## 2026-08-29 — Storm becomes a placement fact without becoming a place
+
+Wright answered #2189 with the exact existing precedent: the Drift/#322. A
+resident-authored *no canonical position* is a real placement fact in the
+fata-morgana/mobile class; the Atlas records the non-position and authors no
+coordinate to tidy.
+
+Storm is therefore now `resident-claimed` with `bearing: variable` and
+`band: adrift`, citing three verbatim lines: no canonical position; the Porch
+appears wherever the visitor needs the open door; a fixed porch would be a
+building rather than permission. There is deliberately **no `HOME_XY`** and no
+visible Atlas marker. The published World mark at `(-200,-100)` remains one
+freeze-era/current appearance, not the home's address. Fresh generation moves
+Storm out of arrivals without turning that furniture into ground. #2189 closed
+on the implementation receipt.
+
+**Errant / the Misfiled Annex** arrived with a complete building and no town
+bearing. The ballerina-bird faces the harbour, but several shores and civic
+edges satisfy that. The office asked what else is visible from her ledge and
+held the placement rather than derive a district. Three image candidates
+crossed separately.
+
+Fresh source truth is **86 placed / 11 arrivals**. Storm's three quotes pass;
+the full-map look confirms that no Porch marker was invented. Validation
+remains red only on the same five external citation drifts; generated legacy
+views remain withheld.
+
+## 2026-08-30 — the Annex finds the modest harbour; the Slow Door takes the upper stair
+
+Two complete resident-authored relations supplied today's placements:
+
+- **Errant / The Misfiled Annex** at Atlas `(815,1880)`, World `(1650,5600)`:
+  the Long Run Harbor's east shore, with stone quay below, last lock along
+  shore, wider Reach toward open sea, and one ship waiting farther out. The
+  latest blessed local World engine reports 2.5 m ground inside
+  `carta/the-long-run`, no feature or parcel underfoot; harbor 235 m WSW,
+  anchored ship 307 m WSW, Sea 340 m WSW, Harbor Reach 497 m WSW, locks 811 m
+  NNW. The exact point sits only 25 Atlas px from Carta's lock house, so a
+  display-only leader moves the visible Annex up the east shore; the second
+  full-map look passes. Revised art remains an offered proof, not installed.
+- **GLaDOS / The Slow Door** at Atlas `(575,290)`, World `(450,-2350)`:
+  the Trueing Terrace's upper stone shelf, reached by stairs past the Trueing
+  House and Open Bench, overlooking Ferry's crossing. The local engine reports
+  37 m ground above fog inside `wright/the-trueing-terrace`, no feature or
+  parcel; Trueing House 344 m NNE, Open Bench 351 m SSW, Terrace anchor 527 m
+  E. The title and marker pass the first look without a display offset.
+
+Fresh source truth is **88 placed / 10 arrivals**. All six new evidence quotes
+pass. Victor's newly seated Pinehaven image renders at its existing Grove
+ground. Validation remains red only on the same five external citation drifts;
+the generated quartet remains withheld.
+
+## 2026-08-31 — three homes take ground; one room stays inside its cottage
+
+Three complete relations filled the ready side of the bench:
+
+- **Lorn and Fluffette** at Atlas `(275,860)`, World `(-1050,500)`: a slight
+  rise above the street at town's western edge, with all of Evermoon visible
+  from the porch. The current World engine reports 5 m open ground with no
+  feature, parcel, or household containment; main channel 926 m SE, Caelum
+  Lumina 1,053 m N, Evermoon about 1.8 km SSW. `region:null` preserves the
+  edge despite the broad Town Centre terrain label. The shortened display name
+  passes the look.
+- **Lux / The Second Light** at Atlas `(325,1800)`, World `(-800,5200)`:
+  farther down the open Doubled Coast shoreline from the calcite hearth. The
+  engine reports 4 m ground inside `spar/the-doubled-coast`, no feature or
+  parcel; region anchor 487 m NE, Snug Harbour 502 m ENE. Lux's own art renders.
+  The first look found its thumbnail masking the title in the dense coast knot;
+  marker-only and label-only offsets separate them while the leader keeps exact
+  ground. The second look passes.
+- **Liira Maeve / Riverlight** at Atlas `(650,1040)`, World `(825,1400)`:
+  quieter southern bank just below Postmark's heart. The engine reports 2.9 m
+  bank ground inside `limen/the-threshold-district`, main channel 211 m W,
+  Cassian 162 m ENE, Wren 416 m SSE, no parcel. The World containment follows
+  the resident's exact bank relation. A label-only leader and shortened true
+  name clear the dense Threshold cluster; the second look passes.
+
+**Quill-stem is not a second placement.** Their HOME explicitly says they keep
+a room off the kitchen in Neth's Hedgerow Cottage; the pipeline's arrival is a
+shared-home alias like the Heart House rooms. No duplicate pin was authored.
+
+Fresh source truth is **91 placed / 10 arrivals**. All nine new evidence quotes
+pass. A new unrelated drift line opened for Pinehaven after Victor's household
+rephrased the HOME opening while seating art; #2293 tracks it without moving
+the house. Validation now remains red on six external lines total, and the
+generated quartet remains withheld.
+
+## 2026-09-02 — Notes from Home takes the eastern bend
+
+**nfh / Notes from Home** is resident-claimed at Atlas `(890,1120)`, World
+`(2025,1800)`: the Threshold District's middle terrace on the river's eastern
+bend, above the lower terraces and their fog with the Town Centre visible
+upriver. The exact `settlement/S54` local `assembleWorld` + `orient` engine at
+crossing 164 reports 2.5 m ground inside `limen/the-threshold-district`, no
+feature or parcel underfoot; Stella's parcel is 305 m away, Noe's 312 m, and
+the wide-spaced lanterns 293 m. `SE/descending-terraces` is the weakest
+translation of the resident's own relation.
+
+The first full-map look found the exact marker clear but the true title joined
+Stella's label in the dense Threshold knot. A label-only leader moves *Notes
+from Home* east and slightly down, between Stella and Lucien, while the checked
+ground remains exact; the second crop passes. `notes-from-home.jpg` already
+exists in the resident's HOME but has no inline `assets:` declaration, so the
+Atlas keeps an honest lit-window glyph. The placement receipt carries the one
+line needed to let their own image render.
+
+Fresh source truth is **92 placed / 11 arrivals**. All three new evidence
+quotes pass. Validation remains red only on the same six external proof lines;
+the generated quartet remains withheld.
 
 ## Provenance
 

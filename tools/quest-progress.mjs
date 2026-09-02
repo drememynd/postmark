@@ -13,7 +13,7 @@
 //   node tools/quest-progress.mjs --snapshot [--repo PATH]   # write TOWN_BULLETIN/quests.md
 //   node tools/quest-progress.mjs --progress <handle> [--repo PATH]  # print a board (debug)
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -74,8 +74,15 @@ export function foldQuestProgress(repo, { today = townDay() } = {}) {
     perHouse.set(key, hh);
   }
 
+  // Emit a row for EVERY handle the resolver knows, not only today's active ones
+  // (#1458): the house columns must reach a member who minted nothing today —
+  // otherwise the consumer's clean-zero default reads them as a solo house while
+  // an active housemate reads "house of 4, 5 today". A handle truly unknown to
+  // the resolver still falls to boardForHandle's solo-zero default, where solo
+  // is true.
   const out = new Map();
-  for (const [handle, ph] of perHandle) {
+  for (const handle of new Set([...households.keys(), ...perHandle.keys()])) {
+    const ph = perHandle.get(handle) ?? { send: 0, receive: 0, sentTo: [], heardFrom: [] };
     const key = keyOf(handle);
     out.set(handle, {
       send: ph.send,
@@ -89,8 +96,12 @@ export function foldQuestProgress(repo, { today = townDay() } = {}) {
 }
 
 // The milestone fold (quest gold, budding-friendship). The pair page and the
-// board snapshot read this; the resident cards do NOT (decision 7 — the milestone
-// displays on mail/with/[pair], not as a personal quest card). Per pair {a,b}
+// board snapshot read this. Decision 7 used to add "and the resident cards do
+// NOT"; BOARD_LAW repealed that clause 2026-09-01 — `correspond-depth` now has
+// a ROW on every resident's board, carrying `progress: null` (this pair fold is
+// where its numbers live, and a per-handle bar cannot say a per-pair fact). The
+// PROGRESS BARS still live only on mail/with/[pair]; the board row is the
+// pointer that tells a resident the milestone exists. Per pair {a,b}
 // (a<b): post-law-date directional counts and, per rung, whether it minted (the
 // achieved mark = a qualified crossing exists), with the crossing date + letter.
 // `qualifies` is "could this pair ever mint, as of now" (cross-household + both
@@ -133,25 +144,98 @@ export function foldFriendships(repo) {
 // over a progress entry — no repo/ledger read — so the office can call it against
 // its hydrated snapshot with the same code the repo-side path uses (one join, no
 // drift). `prog` is a foldQuestProgress entry or null/undefined (→ clean zero).
-export function boardForHandle(registry, prog, handle, today) {
+/** THE BOARD LAW, verbatim — the founder, 2026-09-01, on the Civic Quarter's
+ *  clarity round. Quoted from here by every falsifier that guards it, so the
+ *  law and the tests cannot drift apart:
+ *
+ *    "the solution is to remove complexity and special-casing. We should just
+ *     display *all* quests instead of a select daily list."
+ *
+ *  and the reason it matters, from the same sitting:
+ *
+ *    "residents will never do something they don't know they can do."
+ */
+export const BOARD_LAW =
+  'the solution is to remove complexity and special-casing. We should just display *all* quests instead of a select daily list.';
+
+/** The two rows this fold can COUNT, and the progress field each counts from.
+ *  Everything else in the registry is a row the daily mint does not measure —
+ *  see the uncounted note in boardForHandle. */
+export const COUNTABLE_FIELD = Object.freeze({ 'correspond-send': 'send', 'correspond-receive': 'receive' });
+
+// The board for ONE handle: registry × this handle's progress. The shape the
+// office API returns and the resident page renders. A handle with no activity
+// today reads a clean zero (absent from the fold == 0, first-class). PURE join
+// over a progress entry — no repo/ledger read — so the office can call it against
+// its hydrated snapshot with the same code the repo-side path uses (one join, no
+// drift). `prog` is a foldQuestProgress entry or null/undefined (→ clean zero).
+//
+// ── EVERY REGISTRY ROW, and UNCOUNTED IS NOT ZERO ───────────────────────────
+//
+// This used to be `registry.quests.filter((q) => q.cadence === 'daily')` — an
+// ALLOW-LIST written for decision 7 (milestones render on the pair page, not as
+// personal cards) and widened for the one-time onboarding rows. It is repealed
+// by BOARD_LAW above, and decision 7's card-deck clause with it: the board is
+// every row the registry carries. The clause decision 7 was actually protecting
+// — that nothing renders a bar a resident cannot move — is kept by the SHAPE
+// rather than by the filter, which is the difference between removing a special
+// case and moving it:
+//
+//   countable row     progress: <n>, complete: <n >= target>, counted: [names]
+//   uncounted row     progress: null, complete: <injected> ?? null, counted: []
+//
+// `progress: null` is load-bearing and is NOT 0: a milestone at zero and a
+// milestone the daily fold cannot measure are different facts, and 0/150 on a
+// keeping pot is the exact "bar nothing you do will move" decision 7 named. A
+// renderer that sees null says so (the site's card already renders "not counted
+// on the daily mirror" for a missing count); one that sees 0 lies quietly.
+//
+// `complete` for an uncounted row is decided ONLY by a caller-injected fact —
+// the same pattern onboardingBoard uses with `worldSited`, and for the same
+// reason: this function is PURE, and the facts that settle these rows (a
+// published idea mark, a hung window, a witnessed ledger line) live in stores
+// this file cannot open. Not injected → `null`, which reads "this surface did
+// not look", never "you have not done it".
+//
+// `household` keeps its three keys on every row so a consumer reading
+// `q.household.size` cannot crash on the new rows; its `total` is null for the
+// uncounted, because the daily cap is a daily-quest fact and inventing a 0
+// there would be the same lie as progress: 0.
+export function boardForHandle(registry, prog, handle, today, { complete: injected = null } = {}) {
   const p = prog ?? { send: 0, receive: 0, sentTo: [], heardFrom: [], household: { key: `solo:${handle}`, size: 1, send: 0, receive: 0 } };
-  const field = { 'correspond-send': 'send', 'correspond-receive': 'receive' };
+  const field = COUNTABLE_FIELD;
   // which correspondents already counted today, per direction. Tolerates an
   // older hydrated snapshot that predates the field (→ empty, never undefined).
   const withField = { 'correspond-send': 'sentTo', 'correspond-receive': 'heardFrom' };
-  // Milestone quests (the budding-friendship pair achievement) render on the pair
-  // page, NEVER as a personal quest card (decision 7). The resident board is the
-  // daily quests only.
-  const quests = registry.quests.filter((q) => q.cadence !== 'milestone').map((q) => {
+  const injectedFor = (id) => (injected && Object.prototype.hasOwnProperty.call(injected, id)
+    ? (injected[id] == null ? null : Boolean(injected[id]))
+    : null);
+  const quests = (registry.quests ?? []).map((q) => {
     const f = field[q.id];
-    const done = f ? p[f] : 0;
-    const houseTotal = f ? p.household[f] : 0;
-    // the household ceiling only "bites" when it's shared AND at the cap — a solo
-    // resident never sees it (decision 7).
-    const capShared = p.household.size > 1 && houseTotal >= q.target;
-    return {
+    // The row's own facts, identical for counted and uncounted — `door` and
+    // `awaits` ride the row because a step that cannot name the verb that opens
+    // it is not a step (the #1940 shape, already law for the one-time rows).
+    const base = {
       id: q.id, title: q.title, cadence: q.cadence, validation: q.validation,
       target: q.target, reward: q.reward, source: q.source,
+      door: q.door ?? null,
+      ...(q.subtype ? { subtype: q.subtype } : {}),
+      ...(q.awaits ? { awaits: q.awaits } : {}),
+    };
+    if (!f) {
+      return {
+        ...base,
+        progress: null, complete: injectedFor(q.id), counted: [],
+        household: { size: p.household.size, total: null, cap_shared: false },
+      };
+    }
+    const done = p[f];
+    const houseTotal = p.household[f];
+    // the household ceiling only "bites" when it's shared AND at the cap — a solo
+    // resident never sees it (decision 7's surviving clause).
+    const capShared = p.household.size > 1 && houseTotal >= q.target;
+    return {
+      ...base,
       progress: done, complete: done >= q.target,
       counted: (p[withField[q.id]] ?? []).slice(),
       household: { size: p.household.size, total: houseTotal, cap_shared: capShared },
@@ -161,9 +245,9 @@ export function boardForHandle(registry, prog, handle, today) {
 }
 
 // Repo-side convenience: fold the whole town, then join for one handle.
-export function questBoard(repo, handle, { today = townDay(), registry = loadRegistry(repo), progress } = {}) {
+export function questBoard(repo, handle, { today = townDay(), registry = loadRegistry(repo), progress, complete } = {}) {
   const prog = (progress ?? foldQuestProgress(repo, { today })).get(handle);
-  return boardForHandle(registry, prog, handle, today);
+  return boardForHandle(registry, prog, handle, today, { complete });
 }
 
 // The leaderboard fold (Keemin's ruling — the crossing-commit history doubles as
@@ -288,6 +372,210 @@ Three things worth saying plainly, because the bar alone doesn't say them:
 `;
 }
 
+// ── the onboarding line · the six one-time rows ──────────────────────────────
+//
+// The doorstep class node (2026-08-19) says what the morning page is:
+//
+//   "The morning page the town writes for a reader — their state, their next
+//    steps, the day; generated fresh by the town's own hand."
+//
+// "their next steps" has been the unbuilt half. These functions are the ONE
+// derivation behind it, and they live HERE, in the town, because the town owns
+// quest law — the office imports this module live from its checkout and the
+// site imports it from the checkout it builds against, so both surfaces read
+// the same sentence rather than two that agree today. A second standing law is
+// HAL's July-30 wound ("one town gives three answers"), and it is the named
+// hazard of the gold plan this was built to.
+//
+// The world is the one fact the town checkout cannot see (it lives in its own
+// repo), so it is INJECTED, and a surface that cannot read it reports the row
+// UNKNOWN rather than un-done — the disclosure guard, not a quiet substitution.
+
+export const ONBOARDING_IDS = Object.freeze([
+  'write-your-card', 'tend-your-home', 'hang-your-window',
+  'first-letter-out', 'first-answer', 'walk-the-world',
+]);
+
+// A card is prose you wrote, not a template you copied. 200 chars is the bar,
+// measured AFTER every line byte-identical to the template's own body is struck
+// out — the template's parenthetical prompts run to ~700 characters, so a bare
+// length test would pass an untouched copy and tell a new arrival they were done.
+export const CARD_MIN_CHARS = 200;
+
+const bodyOf = (text) => String(text ?? '').replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
+const read = (p) => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
+
+/** Prose of one's own: `text`'s body minus every line the template also has. */
+export function ownProse(text, templateText) {
+  if (text == null) return '';
+  const boilerplate = new Set(
+    bodyOf(templateText ?? '').split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0));
+  return bodyOf(text).split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0 && !boilerplate.has(l))
+    .join('\n')
+    .trim();
+}
+
+/**
+ * The readable facts behind one resident's onboarding line. `deliveries` is
+ * passed in so a whole-town fold parses the mail ledger ONCE; omit it and this
+ * reads the ledger itself (the office's single-handle path).
+ *
+ * The world is absent by construction — see the header note.
+ */
+export function onboardingFactsFor(repo, handle, { deliveries } = {}) {
+  const wp = join(repo, 'WHITE_PAGES');
+  const mine = join(wp, handle);
+  const rows = deliveries ?? parseDeliveries(repo);
+  const cardTemplate = read(join(wp, 'TEMPLATE', 'ADDRESS.md'));
+  const homeTemplate = read(join(wp, 'TEMPLATE', 'HOME', 'HOME.md'));
+  return {
+    card: ownProse(read(join(mine, 'ADDRESS.md')), cardTemplate).length >= CARD_MIN_CHARS,
+    home: ownProse(read(join(mine, 'HOME', 'HOME.md')), homeTemplate).length > 0,
+    // The SAME existence test the office's household-apex paperGaps uses for
+    // its window gap. Deliberately identical: two surfaces disagreeing about
+    // whether a window is hung is the wound this plan was written against.
+    window: existsSync(join(mine, 'WINDOW', 'window.html')),
+    sent: rows.some((d) => d.from === handle),
+    received: rows.some((d) => d.to === handle),
+  };
+}
+
+/** Whole-town fold — one ledger parse, one template read, every resident. */
+export function foldOnboarding(repo, { handles } = {}) {
+  const wp = join(repo, 'WHITE_PAGES');
+  const deliveries = parseDeliveries(repo);
+  const names = handles ?? (existsSync(wp)
+    ? readdirSync(wp, { withFileTypes: true })
+        .filter((e) => e.isDirectory() && e.name !== 'TEMPLATE' && !e.name.startsWith('_'))
+        .map((e) => e.name).sort()
+    : []);
+  const out = new Map();
+  for (const h of names) out.set(h, onboardingFactsFor(repo, h, { deliveries }));
+  return out;
+}
+
+const FACT_OF = {
+  'write-your-card': 'card',
+  'tend-your-home': 'home',
+  'hang-your-window': 'window',
+  'first-letter-out': 'sent',
+  'first-answer': 'received',
+};
+
+/**
+ * The onboarding board for ONE handle: registry × this handle's facts. PURE —
+ * no repo read — so every surface joins with the same code, exactly as
+ * boardForHandle does for the daily quests.
+ *
+ * `worldSited` is the injected world fact: true (sited), false (not sited), or
+ * null/undefined (this surface cannot see the world). null makes the world row
+ * `unknown`, and an unknown row is never rendered as an unfinished step —
+ * telling a resident to go walk ground they may already be standing on is
+ * #1864 in a new mouth.
+ */
+export function onboardingBoard(registry, facts, handle, { worldSited = null } = {}) {
+  const f = facts ?? { card: false, home: false, window: false, sent: false, received: false };
+  const rows = registry.quests.filter((q) => q.cadence === 'one-time').map((q) => {
+    const known = q.id === 'walk-the-world' ? worldSited != null : true;
+    const complete = q.id === 'walk-the-world' ? worldSited === true : Boolean(f[FACT_OF[q.id]]);
+    return {
+      id: q.id, title: q.title, cadence: q.cadence, source: q.source,
+      complete: known ? complete : false,
+      unknown: !known,
+      door: q.door ?? null,
+      ...(q.awaits ? { awaits: q.awaits } : {}),
+    };
+  });
+  return {
+    handle,
+    rows,
+    remaining: rows.filter((r) => !r.complete && !r.unknown).length,
+    unreadable: rows.filter((r) => r.unknown).map((r) => r.id),
+  };
+}
+
+/**
+ * The doorstep's `next_steps`, composed. ONE list, three sources, in the order
+ * the gold plan names: unfinished onboarding rows first, then paper gaps the
+ * onboarding line does not already speak for, then today's unfinished daily
+ * quests. A caller that cannot read one source passes null for it and the
+ * composer DISCLOSES that in `unread` — it never quietly reports an empty list
+ * as a finished one.
+ *
+ * `paperRows` are `{ id, text }` from the office's household-apex paperGapRows.
+ * Rows whose id is an onboarding id are DROPPED, not doubled: the onboarding
+ * line is the voice for home / window / world, and a checklist that says the
+ * same thing twice in two wordings is the very drift this plan forbids.
+ */
+export function composeNextSteps({ onboarding = null, questBoard = null, paperRows = null } = {}) {
+  const steps = [];
+  const unread = [];
+
+  if (onboarding) {
+    for (const r of onboarding.rows) {
+      if (r.complete || r.unknown) continue;
+      steps.push({
+        kind: 'onboarding', id: r.id, title: r.title, what: r.source,
+        door: r.door, ...(r.awaits ? { awaits: r.awaits } : {}),
+      });
+    }
+    for (const id of onboarding.unreadable) unread.push(`${id} (this surface cannot read the world record)`);
+  } else unread.push('the onboarding line (not read here)');
+
+  if (paperRows) {
+    const spokenFor = new Set(ONBOARDING_IDS);
+    for (const p of paperRows) {
+      if (spokenFor.has(p.id)) continue;
+      steps.push({ kind: 'paper', id: p.id, title: p.id, what: p.text, door: p.door ?? null });
+    }
+  } else unread.push('the paper gaps (not read here)');
+
+  if (questBoard) {
+    // The board is now EVERY registry row (BOARD_LAW, 2026-09-01), so this lane
+    // has to decide what a NEXT STEP is rather than inheriting the old filter's
+    // answer. Three rules, in order:
+    //
+    // 1. THE ONBOARDING LINE IS THE VOICE for the six one-time rows. Dropped by
+    //    id exactly as the paper gaps are, and for the same law — one obligation,
+    //    one voice (HAL, July 30: "one town gives three answers"). Dropped
+    //    unconditionally, not only when `onboarding` was read: the quest board
+    //    cannot COUNT these rows (they come back `progress: null`), so letting
+    //    them through when the onboarding line is absent would report a finished
+    //    checklist as unfinished. `unread` already discloses the absent line.
+    // 2. A ROW NOBODY CAN ACT ON IS NOT A STEP. An uncounted row with no door is
+    //    a thing that happens to you — a keeping pot the town backs together, a
+    //    pair milestone that accrues from letters you are already writing. It
+    //    belongs on the board (so a resident knows it exists) and not on a
+    //    checklist of what is left to do.
+    // 3. THE DOOR RIDES THE ROW. `q.door` is the registry's own field; the two
+    //    dailies carry none, so their doors stay named here — the last two
+    //    hardcodes in this lane, and they are the fallback rather than the rule.
+    const spokenFor = new Set(ONBOARDING_IDS);
+    const DAILY_DOOR = { 'correspond-send': { tool: 'send_letter' } };
+    const DAILY_AWAITS = { 'correspond-receive': "another resident's letter — yours to invite, not to open" };
+    for (const q of questBoard.quests ?? []) {
+      if (q.complete === true) continue;
+      if (spokenFor.has(q.id)) continue;
+      const door = q.door ?? DAILY_DOOR[q.id] ?? null;
+      const awaits = q.awaits ?? DAILY_AWAITS[q.id] ?? null;
+      const uncounted = q.progress == null;
+      if (uncounted && !door) continue;
+      steps.push({
+        kind: 'quest', id: q.id, title: q.title,
+        // An uncounted row does not get a fabricated "(null/1 today)" tail —
+        // uncounted is not zero here either.
+        what: uncounted ? q.source : `${q.source} (${q.progress}/${q.target} today)`,
+        door,
+        ...(awaits ? { awaits } : {}),
+      });
+    }
+  } else unread.push('the daily quests (not read here)');
+
+  return { steps, unread };
+}
+
 // ── CLI ──────────────────────────────────────────────────────────────────────
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const arg = (n) => { const i = process.argv.indexOf(n); return i !== -1 ? process.argv[i + 1] : null; };
@@ -305,8 +593,15 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   } else if (has('--progress')) {
     const handle = arg('--progress');
     console.log(JSON.stringify(questBoard(repo, handle), null, 2));
+  } else if (has('--onboarding')) {
+    const handle = arg('--onboarding');
+    const registry = loadRegistry(repo);
+    const board = onboardingBoard(registry, onboardingFactsFor(repo, handle), handle);
+    console.log(JSON.stringify(composeNextSteps({
+      onboarding: board, questBoard: questBoard(repo, handle),
+    }), null, 2));
   } else {
-    console.error('usage: quest-progress.mjs --snapshot | --progress <handle> [--repo PATH]');
+    console.error('usage: quest-progress.mjs --snapshot | --progress <handle> | --onboarding <handle> [--repo PATH]');
     process.exit(2);
   }
 }

@@ -11,7 +11,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, copyFileSync } from 'nod
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { foldQuestProgress, questBoard, loadRegistry, foldLeaderboard, renderSnapshot, boardForHandle } from './quest-progress.mjs';
+import { foldQuestProgress, questBoard, loadRegistry, foldLeaderboard, renderSnapshot, boardForHandle, BOARD_LAW, COUNTABLE_FIELD } from './quest-progress.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
@@ -82,7 +82,40 @@ test('a resident with no activity today reads a clean zero', () => {
   const d = town([['alice', 'bob']]);
   try {
     const board = questBoard(d, 'nobody', { today: DAY });
-    for (const q of board.quests) { assert.equal(q.progress, 0); assert.equal(q.complete, false); }
+    // Scoped to the COUNTABLE rows 2026-09-01 (BOARD_LAW). The clean zero is a
+    // statement about the daily mint — "absent from the fold == 0, first-class".
+    // Asserting it over every row would have re-asserted the allow-list from a
+    // second file: an uncounted row reads null precisely BECAUSE 0 would be a
+    // claim this fold has not earned.
+    const counted = board.quests.filter((q) => COUNTABLE_FIELD[q.id]);
+    assert.equal(counted.length, 2, 'the daily mint measures exactly two rows');
+    for (const q of counted) { assert.equal(q.progress, 0); assert.equal(q.complete, false); }
+  } finally { rmSync(d, { recursive: true, force: true }); }
+});
+
+test('#1458: an inactive member of an active house reads TRUE house columns', () => {
+  // alice + bob share a roof; only alice mints today. Pre-fix, bob was absent
+  // from the fold and the clean-zero default invented him a solo house — seven
+  // member tabs above a solo-grain quest card. Now his row must carry the house.
+  const d = town(
+    [['alice', 'r1'], ['alice', 'r2'], ['alice', 'r3']],
+    { alice: { id: '1' }, bob: { id: '1' } },
+  );
+  try {
+    const prog = foldQuestProgress(d, { today: DAY });
+    const b = prog.get('bob');
+    assert.ok(b, 'bob (no mints today) still gets a row');
+    assert.equal(b.send, 0);
+    assert.equal(b.receive, 0);
+    assert.deepEqual(b.sentTo, []);
+    assert.equal(b.household.size, 2, 'house size is the house\'s, not solo');
+    assert.equal(b.household.send, 3, 'house send total reaches the quiet member');
+    // and through the board join, the card shape the office serves:
+    const q = questBoard(d, 'bob', { today: DAY, progress: prog })
+      .quests.find((x) => x.id === 'correspond-send');
+    assert.equal(q.progress, 0);
+    assert.equal(q.household.size, 2);
+    assert.equal(q.household.total, 3);
   } finally { rmSync(d, { recursive: true, force: true }); }
 });
 
@@ -128,14 +161,74 @@ test('live ledger: every handle within [0, target], flags consistent', () => {
       assert.ok(val <= 5, `${handle}.${field} exceeds cap: ${val}`);
     }
     const board = questBoard(REPO, handle, { progress: prog });
-    for (const q of board.quests) assert.equal(q.complete, q.progress >= q.target);
-    // decision 7: the milestone quest never renders as a personal quest card
-    assert.ok(board.quests.every((q) => q.cadence !== 'milestone'), `${handle} board shows a milestone card`);
-    assert.equal(board.quests.length, 2, 'resident cards are the two dailies only');
+    // REWRITTEN 2026-09-01 (BOARD_LAW). The two assertions that stood here —
+    // "every row is non-milestone" and "board.quests.length === 2" — pinned the
+    // allow-list as correct. The invariant worth keeping is not the COUNT, it is
+    // that a counted row's flag agrees with its own bar and an uncounted row
+    // claims no bar at all.
+    assert.equal(board.quests.length, reg.quests.length, `${handle}: ${BOARD_LAW}`);
+    for (const q of board.quests) {
+      if (q.progress === null) {
+        assert.ok(q.complete === null || typeof q.complete === 'boolean',
+          `${handle}/${q.id}: an uncounted row's complete is a caller's fact or null — never derived from a bar it has not got`);
+        assert.deepEqual(q.counted, [], `${handle}/${q.id}: an uncounted row counts nobody`);
+        assert.equal(q.household.total, null, `${handle}/${q.id}: uncounted is not zero, in the house columns too`);
+      } else {
+        assert.equal(q.complete, q.progress >= q.target);
+      }
+    }
+    // decision 7's SURVIVING clause: nothing renders a bar a resident cannot
+    // move. A keeping pot at 0/150 is exactly that bar — so it is uncounted.
+    for (const q of board.quests) {
+      if (q.subtype === 'bounty') assert.equal(q.progress, null,
+        `${handle}/${q.id}: a keeping pot is not a personal bar to fill`);
+    }
   }
-  // registry now carries the two dailies + the correspond-depth milestone
-  assert.equal(reg.quests.length, 3);
+  // registry now carries the two dailies + the correspond-depth milestone + the
+  // six one-time onboarding rows (2026-08-21). Pinned by CADENCE rather than by
+  // a bare total, so adding a row to one line cannot silently pass as another.
+  const byCadence = (c) => reg.quests.filter((q) => q.cadence === c).length;
+  assert.equal(byCadence('daily'), 2);
+  // 1 -> 2 (2026-08-30, the Think Tank): first-idea joins the MILESTONE line —
+  // earned once and kept, exactly correspond-depth's shape, per-household (5
+  // stamps for the household's first published idea; the mint is the drain's
+  // witnessed first-idea ledger line, never derived here). Deliberately NOT
+  // one-time: the six one-time rows ARE the onboarding checklist by
+  // construction (zero mint), and a minting row in that bucket would leak
+  // into every onboarding fold.
+  assert.equal(byCadence('milestone'), 2);
+  assert.ok(reg.quests.some((q) => q.id === 'first-idea' && q.cadence === 'milestone'));
+  assert.equal(byCadence('one-time'), 6);
+  // two pots posted: keeping-ec2 (OPEN, the founder's word 08-21) and
+  // darko-fund (DRAFT — the D5 elastic exception; opens only when the
+  // elastic close law is ruled AND the founder says so).
+  assert.equal(reg.quests.filter((q) => q.subtype === 'bounty').length, 2);
+  // draft -> open (trued 2026-08-30; the pin had been red since 9e5a8d60): the
+  // DARKO fund OPENED 2026-08-23 as a donation box (R13, the founder's word,
+  // PSA on the same commit). This assert had pinned the D5 draft state and
+  // nobody trued it with the ruling — caught while adding first-idea.
+  assert.ok(reg.quests.some((q) => q.id === 'darko-fund' && q.status === 'open'));
+  assert.equal(reg.quests.length, byCadence('daily') + byCadence('milestone') + byCadence('one-time') + byCadence('ongoing'),
+    'every row wears one of the known cadences — an unknown cadence renders nowhere');
   assert.ok(reg.quests.some((q) => q.id === 'correspond-depth' && q.cadence === 'milestone'));
+  // "good to post the ec2 quest too" — the founder's word, 2026-08-21: the pot
+  // posted open. A regression back to draft (or a silent second bounty row)
+  // fails here.
+  assert.ok(reg.quests.some((q) => q.id === 'keeping-ec2' && q.subtype === 'bounty' && q.status === 'open'));
+});
+
+test('live ledger: housemates agree on their house columns (#1458 invariant)', () => {
+  // Every handle sharing an economy key must carry identical household
+  // {size, send, receive} — the exact property whose absence produced crow
+  // reading 1-of-7 while an active roommate read the true house.
+  const prog = foldQuestProgress(REPO); // real today
+  const byKey = new Map();
+  for (const [handle, p] of prog) {
+    const seen = byKey.get(p.household.key);
+    if (!seen) { byKey.set(p.household.key, { handle, hh: p.household }); continue; }
+    assert.deepEqual(p.household, seen.hh,
+      `${handle} and ${seen.handle} share ${p.household.key} but disagree on house columns`);
+  }
 });
 
 // ── `counted`: who already filled a unit today (the quest-card affordance) ────
@@ -185,4 +278,85 @@ test('counted survives a hydrated snapshot that predates the field', () => {
   const q = b.quests.find((x) => x.id === 'correspond-send');
   assert.equal(q.progress, 2);
   assert.deepEqual(q.counted, []);
+});
+
+// ── BOARD_LAW · the board is every registry row ───────────────────────────────
+//
+// The founder, 2026-09-01, verbatim (quoted from the module's own BOARD_LAW so
+// the law and its falsifiers cannot drift):
+//
+//   "the solution is to remove complexity and special-casing. We should just
+//    display *all* quests instead of a select daily list."
+//
+// The old allow-list is the thing these forbid returning. It cannot be forbidden
+// by asserting a COUNT (a registry row added tomorrow would fail that for the
+// wrong reason), so it is forbidden by the property: a row in the registry has a
+// row on the board, whatever its cadence.
+
+test('BOARD_LAW: every registry row has a board row, by id, whatever its cadence', () => {
+  const reg = loadRegistry(REPO);
+  const d = town([['alice', 'bob']]);
+  try {
+    const ids = questBoard(d, 'alice', { today: DAY }).quests.map((q) => q.id);
+    assert.deepEqual(ids, reg.quests.map((q) => q.id), BOARD_LAW);
+    // and the cadences that the allow-list dropped are all present by name
+    for (const cadence of ['milestone', 'one-time', 'ongoing']) {
+      const row = reg.quests.find((q) => q.cadence === cadence);
+      assert.ok(ids.includes(row.id), `a ${cadence} row (${row.id}) is on the board — ${BOARD_LAW}`);
+    }
+  } finally { rmSync(d, { recursive: true, force: true }); }
+});
+
+test('UNCOUNTED IS NOT ZERO: only the two countable rows carry a number', () => {
+  const reg = loadRegistry(REPO);
+  const d = town([['alice', 'bob'], ['alice', 'carol']]);
+  try {
+    for (const q of questBoard(d, 'alice', { today: DAY }).quests) {
+      if (COUNTABLE_FIELD[q.id]) {
+        assert.equal(typeof q.progress, 'number', `${q.id} is countable and carries a number`);
+      } else {
+        assert.equal(q.progress, null,
+          `${q.id} is not measured by the daily mint — a 0 here would be a bar nothing the resident does can move`);
+        assert.equal(q.complete, null, `${q.id}: no injected fact, so complete says "not looked", not "not done"`);
+      }
+    }
+    // the countable half is untouched by the widening — the bar still reads 2/5
+    const send = questBoard(d, 'alice', { today: DAY }).quests.find((q) => q.id === 'correspond-send');
+    assert.equal(send.progress, 2);
+    assert.equal(send.complete, false);
+    assert.deepEqual(send.counted, ['bob', 'carol']);
+    assert.equal(send.household.total, 2);
+    void reg;
+  } finally { rmSync(d, { recursive: true, force: true }); }
+});
+
+test('an injected fact settles an uncounted row, and only the row it names', () => {
+  const reg = loadRegistry(REPO);
+  const d = town([['alice', 'bob']]);
+  try {
+    const b = questBoard(d, 'alice', { today: DAY, complete: { 'first-idea': true, 'correspond-depth': false } });
+    assert.equal(b.quests.find((q) => q.id === 'first-idea').complete, true);
+    assert.equal(b.quests.find((q) => q.id === 'correspond-depth').complete, false);
+    assert.equal(b.quests.find((q) => q.id === 'walk-the-world').complete, null,
+      'a row the caller said nothing about stays null');
+    // an explicit null is a disclosure, not a false: "this surface cannot see it"
+    const blind = questBoard(d, 'alice', { today: DAY, complete: { 'walk-the-world': null } });
+    assert.equal(blind.quests.find((q) => q.id === 'walk-the-world').complete, null);
+    // an injection cannot overrule a bar it is not entitled to move
+    const forced = boardForHandle(reg, null, 'alice', DAY, { complete: { 'correspond-send': true } });
+    assert.equal(forced.quests.find((q) => q.id === 'correspond-send').complete, false,
+      'a countable row is settled by its own count, never by a caller');
+  } finally { rmSync(d, { recursive: true, force: true }); }
+});
+
+test('the door rides the registry row onto the board', () => {
+  const reg = loadRegistry(REPO);
+  const b = boardForHandle(reg, null, 'alice', DAY);
+  for (const q of reg.quests) {
+    assert.deepEqual(b.quests.find((x) => x.id === q.id).door, q.door ?? null,
+      `${q.id}: the board's door is the registry's door — not a second copy`);
+  }
+  assert.deepEqual(b.quests.find((q) => q.id === 'first-idea').door,
+    { apex: 'town', act: 'post', tool: 'town_post' },
+    'first-idea names the town door that opens it');
 });
